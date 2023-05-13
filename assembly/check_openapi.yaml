@@ -1,0 +1,302 @@
+---
+openapi: 3.0.3
+info:
+  title: Auth Template REST API
+  version: 0.1.0
+  description: REST API для Auth Template в формате OpenAPI v3.
+servers:
+  - url: http://localhost:8080
+    description: Dev Server
+tags:
+  - name: Auth.Check
+    description: Check Fields
+
+paths:
+  /v1/auth/login-check:
+    post:
+      summary: Auth/CK/R1. Метод проверяет не занят ли уже логин
+      description: Метод предназначен для проверки того, что указанный логин ещё не привязан к какому-либо аккаунту
+      operationId: checkLogin
+      tags:
+        - Auth.Check
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Check.Request.Model.CheckLogin"
+
+      responses:
+        "204":
+          description: Указанный логин свободен
+        "400": # Логин должен быть указан
+               # Логин некорректен или уже привязан к другому аккаунту
+          $ref: "#/components/responses/App.Response.Error400"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/password-check:
+    post:
+      summary: Auth/CK/R2. Метод проверки пароля на его сложность
+      description: Метод предназначен для проверки указанного пароля на соответствие требованиям системы
+      operationId: checkPassword
+      tags:
+        - Auth.Check
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Check.Request.Model.CheckPassword"
+
+      responses:
+        "204":
+          description: Указанный пароль соответствует требованиям системы
+        "400": # Пароль должен быть указан
+               # Пароль содержит недопустимые символы
+               # Пароль слишком простой или короткий
+          $ref: "#/components/responses/App.Response.Error400"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/email-check:
+    post:
+      summary: Auth/CK/R3. Метод проверяет не занят ли уже емаил
+      description: Метод предназначен для проверки того, что указанный емаил ещё не привязан к какому-либо аккаунту
+      operationId: checkEmail
+      tags:
+        - Auth.Check
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Check.Request.Model.CheckEmailLogin"
+
+      responses:
+        "204":
+          description: Указанный емаил свободен
+        "400": # Емаил должен быть указан
+          # Емаил некорректен или уже привязан к другому аккаунту
+          $ref: "#/components/responses/App.Response.Error400"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/phone-check:
+    post:
+      summary: Auth/CK/R4. Метод проверяет не занят ли уже телефон
+      description: Метод предназначен для проверки того, что указанный телефон ещё не привязан к какому-либо аккаунту
+      operationId: checkLogin
+      tags:
+        - Auth.Check
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Check.Request.Model.CheckPhoneLogin"
+
+      responses:
+        "204":
+          description: Указанный телефон свободен
+        "400": # Телефон должен быть указан
+          # Телефон некорректен или уже привязан к другому аккаунту
+          $ref: "#/components/responses/App.Response.Error400"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+components:
+
+  parameters:
+    App.Request.Header.acceptLanguage:
+      description: https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Accept-Language
+      name: Accept-Language
+      in: header
+      schema:
+        type: string
+      example: "ru;q=0.9, fr-CH, fr;q=0.8, en;q=0.7, *;q=0.5"
+
+    App.Request.Header.correlationId:
+      name: CorrelationID
+      in: header
+      schema:
+        type: string
+        format: uuid
+        minLength: 36
+        maxLength: 36
+      example: "f7479171-83d2-4f64-84ac-892f8c0aaf48"
+
+    App.Request.Header.platform:
+      name: Platform
+      in: header
+      schema:
+        description: Платформа, которая использует данное API. По умолчанию WEB
+        type: string
+        enum:
+          - MOBILE
+          - WEB
+      example: WEB
+
+  schemas:
+    App.Response.Model.Error: # RFC 7807 (Problem Details for HTTP APIs)
+      type: object
+      required:
+        - title
+        - detail
+        - request
+        - time
+        - errorTraceId
+      properties:
+        title:
+          description: Краткое описание проблемы, понятное человеку
+          type: string
+          example: "Entity not found"
+        detail:
+          description: Описание конкретно возникшей ошибки, понятное человеку
+          type: string
+          example: "Entity [User] with id = [123456] not found. You MUST use PUT to add entity instead of GET"
+        request:
+          description: Метод и URL запроса
+          type: string
+          example: "PUT /users/123456"
+        time:
+          description: Время возникновения ошибки с точностью до миллисекунд
+          type: string
+          format: date-time
+          example: "2023-01-01T12:00:00.000+02:00"
+        errorTraceId:
+          description: Идентификатор конкретного возникновения ошибки
+          type: string
+          format: uuid
+          example: "0b10c562-1ab2-4a70-94aa-1cced61f8af3"
+
+    App.Response.Model.ErrorAttribute:
+      type: object
+      required:
+        - id
+        - value
+      properties:
+        id:
+          description: Название атрибута, где произошла ошибка
+          type: string
+          example: "attributeName"
+        value:
+          description: Описание ошибки
+          type: string
+          example: "Атрибут не может быть пустым. Указано недопустимое значение атрибута"
+
+    Auth.Check.Request.Model.CheckLogin:
+      type: object
+      required:
+        - userLogin
+      properties:
+        userLogin:
+          description: Логин привязаный к аккаунту пользователя
+          type: string
+          format: login
+          minLength: 5
+          maxLength: 32
+          example: "user-login"
+
+    Auth.Check.Request.Model.CheckPassword:
+      type: object
+      required:
+        - userPassword
+      properties:
+        userPassword:
+          description: Пароль от аккаунта пользователя
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 32
+          example: "DfK0p8Kjp19SkHEd"
+
+    Auth.Check.Request.Model.CheckEmailLogin:
+      type: object
+      required:
+        - userEmail
+      properties:
+        userEmail:
+          description: Емаил привязаный к аккаунту пользователя
+          type: string
+          format: email
+          minLength: 7
+          maxLength: 128
+          example: "user-email@localhost"
+
+    Auth.Check.Request.Model.CheckPhoneLogin:
+      type: object
+      required:
+        - userPhone
+      properties:
+        userPhone:
+          description: Телефон привязаный к аккаунту пользователя
+          type: string
+          format: phone
+          minLength: 10
+          maxLength: 32
+          example: "+7 999 888 77 66"
+
+  responses:
+    App.Response.Error400:
+      description: Некорректные входные данные. Возвращается список атрибутов с ошибками
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/App.Response.Model.ErrorAttribute"
+
+    App.Response.Error401:
+      description: Пользователь не был аутентифицирован
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error403:
+      description: Пользователю с текущими правами доступ отклонён
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error404:
+      description: Запрашиваемый ресурс не был найден
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error5XX:
+      description: Внутренняя ошибка сервера
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

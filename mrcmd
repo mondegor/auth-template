@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# chmod +x ./mrcmd
+
+bash ../mrcmd/mrcmd -d "scripts" --env-file .env "$@"

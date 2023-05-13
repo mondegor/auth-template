@@ -1,0 +1,112 @@
+/v1/auth/login-check:
+  post:
+    summary: Auth/CK/R1. Метод проверяет не занят ли уже логин
+    description: Метод предназначен для проверки того, что указанный логин ещё не привязан к какому-либо аккаунту
+    operationId: checkLogin
+    tags:
+      - Auth.Check
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    requestBody:
+      required: true
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Check.Request.Model.CheckLogin"
+
+    responses:
+      "204":
+        description: Указанный логин свободен
+      "400": # Логин должен быть указан
+             # Логин некорректен или уже привязан к другому аккаунту
+        $ref: "#/components/responses/App.Response.Error400"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+/v1/auth/password-check:
+  post:
+    summary: Auth/CK/R2. Метод проверки пароля на его сложность
+    description: Метод предназначен для проверки указанного пароля на соответствие требованиям системы
+    operationId: checkPassword
+    tags:
+      - Auth.Check
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    requestBody:
+      required: true
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Check.Request.Model.CheckPassword"
+
+    responses:
+      "204":
+        description: Указанный пароль соответствует требованиям системы
+      "400": # Пароль должен быть указан
+             # Пароль содержит недопустимые символы
+             # Пароль слишком простой или короткий
+        $ref: "#/components/responses/App.Response.Error400"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+/v1/auth/email-check:
+  post:
+    summary: Auth/CK/R3. Метод проверяет не занят ли уже емаил
+    description: Метод предназначен для проверки того, что указанный емаил ещё не привязан к какому-либо аккаунту
+    operationId: checkEmail
+    tags:
+      - Auth.Check
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    requestBody:
+      required: true
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Check.Request.Model.CheckEmailLogin"
+
+    responses:
+      "204":
+        description: Указанный емаил свободен
+      "400": # Емаил должен быть указан
+        # Емаил некорректен или уже привязан к другому аккаунту
+        $ref: "#/components/responses/App.Response.Error400"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+/v1/auth/phone-check:
+  post:
+    summary: Auth/CK/R4. Метод проверяет не занят ли уже телефон
+    description: Метод предназначен для проверки того, что указанный телефон ещё не привязан к какому-либо аккаунту
+    operationId: checkLogin
+    tags:
+      - Auth.Check
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    requestBody:
+      required: true
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Check.Request.Model.CheckPhoneLogin"
+
+    responses:
+      "204":
+        description: Указанный телефон свободен
+      "400": # Телефон должен быть указан
+        # Телефон некорректен или уже привязан к другому аккаунту
+        $ref: "#/components/responses/App.Response.Error400"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"

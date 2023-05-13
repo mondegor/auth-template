@@ -1,0 +1,51 @@
+Auth.Check.Request.Model.CheckLogin:
+  type: object
+  required:
+    - userLogin
+  properties:
+    userLogin:
+      description: Логин привязаный к аккаунту пользователя
+      type: string
+      format: login
+      minLength: 5
+      maxLength: 32
+      example: "user-login"
+
+Auth.Check.Request.Model.CheckPassword:
+  type: object
+  required:
+    - userPassword
+  properties:
+    userPassword:
+      description: Пароль от аккаунта пользователя
+      type: string
+      format: password
+      minLength: 8
+      maxLength: 32
+      example: "DfK0p8Kjp19SkHEd"
+
+Auth.Check.Request.Model.CheckEmailLogin:
+  type: object
+  required:
+    - userEmail
+  properties:
+    userEmail:
+      description: Емаил привязаный к аккаунту пользователя
+      type: string
+      format: email
+      minLength: 7
+      maxLength: 128
+      example: "user-email@localhost"
+
+Auth.Check.Request.Model.CheckPhoneLogin:
+  type: object
+  required:
+    - userPhone
+  properties:
+    userPhone:
+      description: Телефон привязаный к аккаунту пользователя
+      type: string
+      format: phone
+      minLength: 10
+      maxLength: 32
+      example: "+7 999 888 77 66"

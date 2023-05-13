@@ -1,0 +1,184 @@
+/v1/auth/login:
+  patch:
+    summary: Auth/CH/R1. Метод изменения логина пользователя
+    description: Метод предназначен для изменения логина пользователя привязанного к его аккаунту
+    operationId: changeLogin
+    tags:
+      - Auth.Change
+
+    security:
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    requestBody:
+      required: true
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Change.Request.Model.ChangeLogin"
+
+    responses:
+      "200": # Новый логин пользователя был установлен
+        $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
+      "202":
+        $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+      "400": # Новый логин должен быть указан
+             # Новый логин некорректен
+             # Новый логин уже привязан к другому аккаунту
+             # Текущий пароль должен быть указан
+             # Текущий пароль указан неверно
+        $ref: "#/components/responses/App.Response.Error400"
+      "401":
+        $ref: "#/components/responses/App.Response.Error401"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+/v1/auth/password:
+  patch:
+    summary: Метод изменения пароля пользователя
+    description: Метод предназначен для изменения в БД пароля пользователя
+    operationId: changePassword
+    tags:
+      - Auth.Change
+
+    security:
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    requestBody:
+      required: true
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Change.Request.Model.ChangePassword"
+
+    responses:
+      "200": # Новый пароль пользователя был установлен
+        $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
+      "202":
+        $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+      "400": # Текущий пароль должен быть указан
+             # Текущий пароль указан неверно
+             # Новый пароль должен быть указан
+             # Новый пароль содержит недопустимые символы
+             # Новый пароль слишком простой или короткий
+        $ref: "#/components/responses/App.Response.Error400"
+      "401":
+        $ref: "#/components/responses/App.Response.Error401"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+/v1/auth/pin:
+  patch:
+    summary: Метод изменения PIN-кода пользователя
+    description: Метод предназначен для изменения в БД PIN-кода пользователя
+    operationId: changePin
+    tags:
+      - Auth.Change
+
+    security:
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    requestBody:
+      required: true
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Change.Request.Model.ChangePin"
+
+    responses:
+      "200": # Новый PIN-код пользователя был установлен
+             # PIN-код пользователя был отключён (только при отправке "0000")
+        $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
+      "202":
+        $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+      "400": # Текущий PIN-код должен быть указан
+             # Текущий PIN-код указан неверно
+             # Новый PIN-код должен быть указан
+             # Длина нового PIN-кода должна быть размером в N символов
+             # Новый PIN-код должен содержать только цифры
+        $ref: "#/components/responses/App.Response.Error400"
+      "401":
+        $ref: "#/components/responses/App.Response.Error401"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+/v1/auth/email:
+  patch:
+    summary: Auth/CH/R4. Метод изменения емаила пользователя
+    description: Метод предназначен для изменения емаила пользователя привязанного к его аккаунту
+    operationId: changeEmail
+    tags:
+      - Auth.Change
+
+    security:
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    requestBody:
+      required: true
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Change.Request.Model.ChangeEmail"
+
+    responses:
+      "200": # Новый емаил пользователя был установлен
+        $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
+      "202":
+        $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+      "400": # Новый емаил должен быть указан
+             # Новый емаил некорректен или уже привязан к другому аккаунту
+        $ref: "#/components/responses/App.Response.Error400"
+      "401":
+        $ref: "#/components/responses/App.Response.Error401"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+/v1/auth/phone:
+  patch:
+    summary: Auth/CH/R5. Метод изменения телефона пользователя
+    description: Метод предназначен для изменения телефона пользователя привязанного к его аккаунту
+    operationId: changePhone
+    tags:
+      - Auth.Change
+
+    security:
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    requestBody:
+      required: true
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Change.Request.Model.ChangePhone"
+
+    responses:
+      "200": # Новый телефон пользователя был установлен
+        $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
+      "202":
+        $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+      "400": # Новый телефон должен быть указан
+             # Новый телефон некорректен или уже привязан к другому аккаунту
+        $ref: "#/components/responses/App.Response.Error400"
+      "401":
+        $ref: "#/components/responses/App.Response.Error401"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"

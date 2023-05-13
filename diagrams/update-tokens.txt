@@ -1,0 +1,37 @@
+### Обновление access и refresh токенов (обработка кода 401)
+
+```plantuml
+@startuml
+!theme mars
+
+skinparam {
+    MaxMessageSize 250
+}
+
+skinparam sequence {
+    ParticipantPadding 125
+    MessageAlign center
+}
+
+participant "WebApp" as app order 10
+participant "SX" as sx order 20
+participant "Auth" as auth order 30
+
+app -> sx: [SX.Y] запрос к ресурсу сервиса
+app <-- sx: [SX.Y] Error 401
+
+app -> auth: [Auth/R4] запрос на генерацию новых access и refresh токенов
+
+alt #f0fff0 Refresh токен указан верно
+  auth -> auth: генерация новых access и refresh токенов
+  app <-- auth: [Auth/R4] Success 201
+
+  app -> auth: [SX.Y] повторный запрос к ресурсу сервиса
+  app <-- auth: [SX.Y] Success 200
+else #fff0f0 Refresh токен невалидный
+  app <-- auth: [Auth/R4] Error 403
+  app -> app: отображение формы аутентификации
+end
+
+@enduml
+```

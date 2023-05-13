@@ -1,0 +1,78 @@
+Auth.Response.Model.AbstractAccount:
+  type: object
+  required:
+    - accountId
+  properties:
+    accountId:
+      description: ID аккаунта пользователя
+      type: string
+      example: "2711650"
+
+Auth.Response.Model.Account.Login:
+  type: object
+  required:
+    - userLogin
+  properties:
+    userLogin:
+      description: Логин пользователя
+      type: string
+      example: "user-login"
+    loginStatus:
+      $ref: "#/components/schemas/Auth.Response.Model.FieldUpdateStatus"
+
+Auth.Response.Model.Account.Email:
+  type: object
+  required:
+    - userEmail
+  properties:
+    userEmail:
+      description: Емаил пользователя
+      type: string
+      example: "user-email@localhost"
+    emailStatus:
+      $ref: "#/components/schemas/Auth.Response.Model.FieldUpdateStatus"
+
+Auth.Response.Model.Account.Phone:
+  type: object
+  required:
+    - userPhone
+  properties:
+    userPhone:
+      description: Телефон пользователя
+      type: string
+      example: "+7 999 888 77 66"
+    phoneStatus:
+      $ref: "#/components/schemas/Auth.Response.Model.FieldUpdateStatus"
+
+Auth.Response.Model.Account:
+  allOf:
+    - $ref: "#/components/schemas/Auth.Response.Model.AbstractAccount"
+    - $ref: "#/components/schemas/Auth.Response.Model.Account.Login"
+    - $ref: "#/components/schemas/Auth.Response.Model.Account.Email"
+    - $ref: "#/components/schemas/Auth.Response.Model.Account.Phone"
+
+Auth.Response.Model.FieldUpdateStatus:
+  type: object
+  required:
+    - newValue
+    - status
+  properties:
+    operationToken: # required if status = CONFIRMING
+      description: Токен операции, которую необходимо подтвердить для обновления поля новым значением
+      type: string
+      example: "b1d50cb1f3bc817f2be3a4b357929cee70402fb5463db25b91568a1801dc0974"
+    willUpdated: # required if status = UPDATING
+      description: Время, через которое будет обновлён логин/емаил/телефон (в сек.)
+      type: number
+      example: 81392
+    newValue:
+      description: Новый логин/емаил/телефон пользователя
+      type: string
+      example: "new-user-login | new-user-email@localhost | +7 999 888 77 77"
+    status:
+      description: Статус подтверждения
+      type: string
+      enum:
+        - CONFIRMING
+        - UPDATING
+      example: "UPDATING"

@@ -1,0 +1,13 @@
+Auth.Change.Response.WaitingChangeProtectedField:
+  description: Ожидается подтверждение изменения значения защищённого поля
+  content:
+    application/json;charset=UTF-8:
+      schema:
+        $ref: "#/components/schemas/Auth.Change.Response.Model.WaitingChangeProtectedField"
+
+Auth.Change.Response.SuccessChangeProtectedField:
+  description: Значение защищённого поля успешно изменено
+  content:
+    application/json;charset=UTF-8:
+      schema:
+        $ref: "#/components/schemas/Auth.Change.Response.Model.SuccessChangeProtectedField"

@@ -1,0 +1,52 @@
+Auth.Request.Model.CreateLogin:
+  type: object
+  required:
+    - userLogin
+    - userPassword
+  properties:
+    userLogin:
+      description: Логин пользователя, к которому будет привязан созданный аккаунт
+      type: string
+      format: login
+      minLength: 5
+      maxLength: 32
+      example: "user-login"
+    userPassword:
+      description: Пароль от аккаунта пользователя
+      type: string
+      format: password
+      minLength: 8
+      maxLength: 32
+      example: "DfK0p8Kjp19SkHEd"
+
+Auth.Request.Model.CreateEmail:
+  type: object
+  required:
+    - userEmail
+  properties:
+    userEmail:
+      description: Емаил пользователя являющийся одновременно и логином, к которому будет привязан созданный аккаунт
+      type: string
+      format: email
+      minLength: 7
+      maxLength: 128
+      example: "user-email@localhost"
+
+Auth.Request.Model.CreatePhone:
+  type: object
+  required:
+    - userPhone
+  properties:
+    userPhone:
+      description: Телефон пользователя являющийся одновременно и логином, к которому будет привязан созданный аккаунт
+      type: string
+      format: phone
+      minLength: 10
+      maxLength: 32
+      example: "+7 999 888 77 66"
+
+Auth.Request.Model.CreateAccount:
+  oneOf:
+    - $ref: "#/components/schemas/Auth.Request.Model.CreateLogin"
+    - $ref: "#/components/schemas/Auth.Request.Model.CreateEmail"
+    - $ref: "#/components/schemas/Auth.Request.Model.CreatePhone"

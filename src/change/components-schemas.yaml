@@ -1,0 +1,78 @@
+Auth.Change.Request.Model.ChangeLogin:
+  type: object
+  required:
+    - newLogin
+    - currentPassword
+  properties:
+    newLogin:
+      description: Новый логин пользователя
+      type: string
+      format: login
+      maxLength: 32
+      example: "new-user-login"
+    currentPassword:
+      description: Текущий пароль пользователя
+      type: string
+      maxLength: 32
+      example: "DfK0p8Kjp19SkHEd"
+
+Auth.Change.Request.Model.ChangePassword:
+  type: object
+  required:
+    - newPassword
+  properties:
+    newPassword:
+      description: Новый пароль пользователя
+      type: string
+      format: password
+      minLength: 8
+      maxLength: 32
+      example: "jp19SkHEdDfK0p8K"
+    currentPassword:
+      description: Текущий пароль пользователя
+      type: string
+      maxLength: 32
+      example: "DfK0p8Kjp19SkHEd"
+
+Auth.Change.Request.Model.ChangePin:
+  type: object
+  required:
+    - newPin
+  properties:
+    newPin:
+      description: Новый PIN-код пользователя
+      type: string
+      minLength: 4
+      maxLength: 8
+      example: "3344"
+    currentPin:
+      description: Текущий PIN-код пользователя
+      type: string
+      maxLength: 8
+      example: "2233"
+
+Auth.Change.Request.Model.ChangeEmail:
+  type: object
+  required:
+    - newEmail
+  properties:
+    newEmail:
+      description: Новый емаил пользователя
+      type: string
+      format: email
+      minLength: 7
+      maxLength: 128
+      example: "new-user-email@localhost"
+
+Auth.Change.Request.Model.ChangePhone:
+  type: object
+  required:
+    - userPhone
+  properties:
+    userPhone:
+      description: Новый телефон пользователя
+      type: string
+      format: phone
+      minLength: 10
+      maxLength: 32
+      example: "+7 999 888 77 77"

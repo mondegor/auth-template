@@ -1,0 +1,31 @@
+# Предварительная проверка, можно ли использовать указанный логин/емаил/телефон при создании нового аккаунта
+
+```plantuml
+@startuml
+!theme mars
+
+skinparam {
+    MaxMessageSize 250
+}
+
+skinparam sequence {
+    ParticipantPadding 125
+    MessageAlign center
+}
+
+participant "User" as usr order 10
+participant "WebApp" as app order 20
+participant "Auth" as auth order 30
+
+usr -> app: Заполнение поля с логином
+app -> auth: [Auth/CK/R1]. Запрос на проверку не занят ли уже указанный логин
+auth -> auth: Поиск указанного логина
+
+alt #f0fff0 Если логин свободен
+  app <-- auth: [Auth/CK/R1] Success 204
+else #fff0f0 Иначе логин невалидный или уже занят
+  app <-- auth: [Auth/CK/R1] Error 400
+end
+
+@enduml
+```

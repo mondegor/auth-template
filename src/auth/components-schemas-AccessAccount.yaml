@@ -1,0 +1,54 @@
+Auth.Response.Model.WaitingAccessAccount:
+  type: object
+  required:
+    - operationToken
+    - message
+  properties:
+    operationToken:
+      description: Токен операции, которую необходимо подтвердить для получения доступа к аккаунту
+      type: string
+      example: "b1d50cb1f3bc817f2be3a4b357929cee70402fb5463db25b91568a1801dc0974"
+    accountId:
+      description: ID аккаунта пользователя
+      type: string
+      example: "2711650"
+    message:
+      type: string
+      example: "Ваш аккаунт 2711650 успешно зарегистрирован, необходимо его активировать вводом кода подтверждения, отправленный на емаил/телефон, указанный при регистрации | На ваш емаил/телефон был выслан код для подверждения доступа к аккаунту"
+
+Auth.Response.Model.AbstractSuccessAccessAccount:
+  type: object
+  required:
+    - accessToken
+    - message
+  properties:
+    accessToken:
+      type: string
+      example: "425b91568a1801dc02fb5463db17f2be3a4b357929cee700974b1d50cb1f3bc8"
+    accountId:
+      description: ID аккаунта пользователя
+      type: string
+      example: "2711650"
+    message:
+      type: string
+      example: "Ваш аккаунт 2711650 успешно зарегистрирован | Доступ к вашему аккаунту 2711650 разрешён"
+
+Auth.Response.Model.Mobile.SuccessAccessAccount:
+  allOf:
+    - type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          example: "02fb5463db25b91568a1801dc0974b1d50cb1f3bc817f2be3a4b357929cee704"
+    - $ref: "#/components/schemas/Auth.Response.Model.AbstractSuccessAccessAccount"
+
+Auth.Response.Model.Web.SuccessAccessAccount:
+  allOf:
+    - $ref: "#/components/schemas/Auth.Response.Model.AbstractSuccessAccessAccount"
+
+Auth.Response.Model.SuccessAccessAccount:
+  oneOf:
+    - $ref: "#/components/schemas/Auth.Response.Model.Mobile.SuccessAccessAccount"
+    - $ref: "#/components/schemas/Auth.Response.Model.Web.SuccessAccessAccount"

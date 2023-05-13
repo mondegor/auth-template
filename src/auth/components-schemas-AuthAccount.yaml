@@ -1,0 +1,44 @@
+Auth.Request.Model.AuthByLogin:
+  type: object
+  required:
+    - userLogin
+    - userPassword
+  properties:
+    userLogin:
+      description: Логин привязаный к аккаунту пользователя
+      type: string
+      maxLength: 32
+      example: "user-login"
+    userPassword:
+      description: Пароль от аккаунта пользователя
+      type: string
+      maxLength: 32
+      example: "DfK0p8Kjp19SkHEd"
+
+Auth.Request.Model.AuthByEmail:
+  type: object
+  required:
+    - userLogin
+  properties:
+    userLogin:
+      description: Емаил привязаный к аккаунту пользователя
+      type: string
+      maxLength: 128
+      example: "user-email@localhost"
+
+Auth.Request.Model.AuthByPhone:
+  type: object
+  required:
+    - userLogin
+  properties:
+    userLogin:
+      description: Телефон привязаный к аккаунту пользователя
+      type: string
+      maxLength: 32
+      example: "+7 999 888 77 66"
+
+Auth.Request.Model.AuthAccount:
+  oneOf:
+    - $ref: "#/components/schemas/Auth.Request.Model.AuthByLogin"
+    - $ref: "#/components/schemas/Auth.Request.Model.AuthByEmail"
+    - $ref: "#/components/schemas/Auth.Request.Model.AuthByPhone"

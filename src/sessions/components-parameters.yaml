@@ -1,0 +1,7 @@
+Auth.Sessions.Request.Path.sessionHash:
+  name: sessionHash
+  in: path
+  required: true
+  schema:
+    type: string
+  example: "1f3bc817fb1d50cb"

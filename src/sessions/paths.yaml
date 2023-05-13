@@ -1,0 +1,76 @@
+/v1/auth/sessions:
+  get:
+    summary: Auth/SS/R1. Метод получения списка сессий пользователя
+    description: Метод предназначен для получения из БД списка открытых сессий пользователя
+    operationId: getSessions
+    tags:
+      - Auth.Sessions
+
+    security:
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    responses:
+      "200":
+        description: Сформирован ответ со списком открытых сессий пользователя
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Auth.Sessions.Response.Model.Session"
+      "401":
+        $ref: "#/components/responses/App.Response.Error401"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+  delete:
+    summary: Auth/SS/R2. Метод уничтожения открытых сессий кроме текущей
+    description: Метод предназначен для уничтожения в БД всех открытых сессий пользователя кроме текущей
+    operationId: terminateSessions
+    tags:
+      - Auth.Sessions
+
+    security:
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+    responses:
+      "204":
+        description: Все сессии пользователя были уничтожены кроме текущей
+      "401":
+        $ref: "#/components/responses/App.Response.Error401"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+/v1/auth/sessions/{sessionHash}:
+  delete:
+    summary: Auth/SS/R3. Метод уничтожения указанной сессий
+    description: Метод предназначен для уничтожения в БД указанной сессии пользователя
+    operationId: terminateSession
+    tags:
+      - Auth.Sessions
+
+    security:
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+      - $ref: "#/components/parameters/Auth.Sessions.Request.Path.sessionHash"
+
+    responses:
+      "204":
+        description: Указанная сессия пользователя была уничтожена
+      "401":
+        $ref: "#/components/responses/App.Response.Error401"
+      "404":
+        $ref: "#/components/responses/App.Response.Error404"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"

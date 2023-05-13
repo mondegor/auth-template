@@ -1,0 +1,39 @@
+Auth.Request.Model.AccessRecoveryByEmail:
+  type: object
+  required:
+    - userEmail
+  properties:
+    userEmail:
+      description: Емаил привязаный к аккаунту пользователя
+      type: string
+      maxLength: 128
+      example: "user-email@localhost"
+
+Auth.Request.Model.AccessRecoveryByPhone:
+  type: object
+  required:
+    - userPhone
+  properties:
+    userPhone:
+      description: Телефон привязаный к аккаунту пользователя
+      type: string
+      maxLength: 32
+      example: "+7 999 888 77 66"
+
+Auth.Request.Model.AccessRecovery:
+  oneOf:
+    - $ref: "#/components/schemas/Auth.Request.Model.AccessRecoveryByEmail"
+    - $ref: "#/components/schemas/Auth.Request.Model.AccessRecoveryByPhone"
+
+Auth.Request.Model.SetPassword:
+  type: object
+  required:
+    - newPassword
+  properties:
+    newPassword:
+      description: Новый пароль пользователя
+      type: string
+      format: password
+      minLength: 8
+      maxLength: 32
+      example: "jp19SkHEdDfK0p8K"

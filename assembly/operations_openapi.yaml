@@ -1,0 +1,349 @@
+---
+openapi: 3.0.3
+info:
+  title: Auth Template REST API
+  version: 0.1.0
+  description: REST API для Auth Template в формате OpenAPI v3.
+servers:
+  - url: http://localhost:8080
+    description: Dev Server
+tags:
+  - name: Auth.Operations
+    description: Confirmation Operations
+
+paths:
+  /v1/auth/operation/{operationToken}:
+    get:
+      summary: Auth/OP/R1. Метод получения информации об операции
+      description: Метод предназначен для получения информации из БД об указанной операции
+      operationId: getOperation
+      tags:
+        - Auth.Operations
+
+      security:
+        - {}
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/Auth.Operations.Request.Path.operationToken"
+
+      responses:
+        "200":
+          description: Сформирован ответ с информацией об указанной операции
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/Auth.Operations.Response.Model.OperationStatus"
+        "403":
+          $ref: "#/components/responses/App.Response.Error403"
+        "404":
+          $ref: "#/components/responses/App.Response.Error404"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+    put:
+      summary: Auth/OP/R2. Метод подтверждения операции
+      description: Метод предназначен для подтвержения в БД указанной операции
+      operationId: confirmOperation
+      tags:
+        - Auth.Operations
+
+      security:
+        - {}
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/Auth.Operations.Request.Path.operationToken"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Operations.Request.Model.ConfirmOperation"
+
+      responses:
+        "204":
+          description: Указанная операция была подтверждена
+        "400": # Токен операции должен быть указан
+               # Токен операции некорректен или недействителен
+               # Код подтверждения операции должен быть указан
+               # Код подтверждения операции некорректен
+               # Исчерпано кол-во попыток подтверждения операции
+          $ref: "#/components/responses/App.Response.Error400"
+        "403":
+          $ref: "#/components/responses/App.Response.Error403"
+        "404":
+          $ref: "#/components/responses/App.Response.Error404"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+    delete:
+      summary: Auth/OP/R3. Метод отмены операции
+      description: Метод предназначен для отмены в БД указанной операции, если это возможно
+      operationId: cancelOperation
+      tags:
+        - Auth.Operations
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/Auth.Operations.Request.Path.operationToken"
+
+      responses:
+        "204":
+          description: Указанная операция была отменена
+        "403":
+          $ref: "#/components/responses/App.Response.Error403"
+        "404":
+          $ref: "#/components/responses/App.Response.Error404"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+components:
+
+  parameters:
+    App.Request.Header.acceptLanguage:
+      description: https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Accept-Language
+      name: Accept-Language
+      in: header
+      schema:
+        type: string
+      example: "ru;q=0.9, fr-CH, fr;q=0.8, en;q=0.7, *;q=0.5"
+
+    App.Request.Header.correlationId:
+      name: CorrelationID
+      in: header
+      schema:
+        type: string
+        format: uuid
+        minLength: 36
+        maxLength: 36
+      example: "f7479171-83d2-4f64-84ac-892f8c0aaf48"
+
+    App.Request.Header.platform:
+      name: Platform
+      in: header
+      schema:
+        description: Платформа, которая использует данное API. По умолчанию WEB
+        type: string
+        enum:
+          - MOBILE
+          - WEB
+      example: WEB
+
+    Auth.Operations.Request.Path.operationToken:
+      name: operationToken
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 64
+        maxLength: 64
+      example: "b1d50cb1f3bc817f2be3a4b357929cee70402fb5463db25b91568a1801dc0974"
+
+  schemas:
+    App.Response.Model.Error: # RFC 7807 (Problem Details for HTTP APIs)
+      type: object
+      required:
+        - title
+        - detail
+        - request
+        - time
+        - errorTraceId
+      properties:
+        title:
+          description: Краткое описание проблемы, понятное человеку
+          type: string
+          example: "Entity not found"
+        detail:
+          description: Описание конкретно возникшей ошибки, понятное человеку
+          type: string
+          example: "Entity [User] with id = [123456] not found. You MUST use PUT to add entity instead of GET"
+        request:
+          description: Метод и URL запроса
+          type: string
+          example: "PUT /users/123456"
+        time:
+          description: Время возникновения ошибки с точностью до миллисекунд
+          type: string
+          format: date-time
+          example: "2023-01-01T12:00:00.000+02:00"
+        errorTraceId:
+          description: Идентификатор конкретного возникновения ошибки
+          type: string
+          format: uuid
+          example: "0b10c562-1ab2-4a70-94aa-1cced61f8af3"
+
+    App.Response.Model.ErrorAttribute:
+      type: object
+      required:
+        - id
+        - value
+      properties:
+        id:
+          description: Название атрибута, где произошла ошибка
+          type: string
+          example: "attributeName"
+        value:
+          description: Описание ошибки
+          type: string
+          example: "Атрибут не может быть пустым. Указано недопустимое значение атрибута"
+
+    Auth.Operations.Request.Model.ConfirmPassword:
+      type: object
+      required:
+        - currentPassword
+      properties:
+        code:
+          description: Текущий пароль для подтверждения операции
+          type: string
+          maxLength: 32
+          example: "DfK0p8Kjp19SkHEd"
+
+    Auth.Operations.Request.Model.ConfirmPin:
+      type: object
+      required:
+        - currentPin
+      properties:
+        code:
+          description: Текущий PIN-код для подтверждения операции
+          type: string
+          maxLength: 8
+          example: "2233"
+
+    Auth.Operations.Request.Model.ConfirmEmail:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: Код подтверждения операции по емаилу
+          type: string
+          maxLength: 8
+          example: "183947"
+
+    Auth.Operations.Request.Model.ConfirmPhone:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: Код подтверждения операции по телефону
+          type: string
+          maxLength: 8
+          example: "3843"
+
+    Auth.Operations.Request.Model.ConfirmOperation:
+      oneOf:
+        - $ref: "#/components/schemas/Auth.Operations.Request.Model.ConfirmPassword"
+        - $ref: "#/components/schemas/Auth.Operations.Request.Model.ConfirmPin"
+        - $ref: "#/components/schemas/Auth.Operations.Request.Model.ConfirmEmail"
+        - $ref: "#/components/schemas/Auth.Operations.Request.Model.ConfirmPhone"
+
+    Auth.Operations.Response.Model.AbstractOperationStatus:
+      type: object
+      required:
+        - maxCheckCode
+        - sessionExpiry
+        - countTryCode
+      properties:
+        maxCheckCode:
+          description: Максимальное количество попыток ввода кода, для подтверждения операции
+          type: integer
+          example: 5
+        sessionExpiry:
+          description: Оставшееся время жизни сессии подтверждения операции в секундах
+          type: integer
+          example: 1032
+        countTryCode:
+          description: Оставшееся количество попыток ввода одного кода для подтверждения операции
+          type: integer
+          example: 2
+
+    Auth.Operations.Response.Model.PasswordStatus:
+      allOf:
+        - $ref: "#/components/schemas/Auth.Operations.Response.Model.AbstractOperationStatus"
+
+    Auth.Operations.Response.Model.PinStatus:
+      allOf:
+        - $ref: "#/components/schemas/Auth.Operations.Response.Model.AbstractOperationStatus"
+
+    Auth.Operations.Response.Model.EmailStatus:
+      allOf:
+        - $ref: "#/components/schemas/Auth.Operations.Response.Model.AbstractOperationStatus"
+
+    Auth.Operations.Response.Model.PhoneStatus:
+      allOf:
+        - $ref: "#/components/schemas/Auth.Operations.Response.Model.AbstractOperationStatus"
+        - type: object
+          required:
+            - resendTime
+            - countSmsSend
+          properties:
+            resendTime:
+              description: Минимальное время для отправки нового SMS сообщения с кодом подтверждения в секундах
+              type: string
+              example: "180 (3 мин)"
+            countSmsSend:
+              description: Оставшееся количество SMS, которые можно отправить с новым кодом подтверждения одному пользователю
+              type: integer
+              example: 2
+
+    Auth.Operations.Response.Model.OperationStatus:
+      oneOf:
+        - $ref: "#/components/schemas/Auth.Operations.Response.Model.PasswordStatus"
+        - $ref: "#/components/schemas/Auth.Operations.Response.Model.PinStatus"
+        - $ref: "#/components/schemas/Auth.Operations.Response.Model.EmailStatus"
+        - $ref: "#/components/schemas/Auth.Operations.Response.Model.PhoneStatus"
+
+  responses:
+    App.Response.Error400:
+      description: Некорректные входные данные. Возвращается список атрибутов с ошибками
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/App.Response.Model.ErrorAttribute"
+
+    App.Response.Error401:
+      description: Пользователь не был аутентифицирован
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error403:
+      description: Пользователю с текущими правами доступ отклонён
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error404:
+      description: Запрашиваемый ресурс не был найден
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error5XX:
+      description: Внутренняя ошибка сервера
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

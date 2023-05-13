@@ -1,0 +1,22 @@
+Auth.Change.Response.Model.WaitingChangeProtectedField:
+  type: object
+  required:
+    - operationToken
+    - message
+  properties:
+    operationToken:
+      description: Токен операции, которую необходимо подтвердить для изменения защищённого поля аккаунта
+      type: string
+      example: "b1d50cb1f3bc817f2be3a4b357929cee70402fb5463db25b91568a1801dc0974"
+    message:
+      type: string
+      example: "На новый емаил/телефон был выслан код для подтверждения его принадлежности вам | На текущий емаил/телефон был выслан код для подтверждения изменения логина/емаила/телефона"
+
+Auth.Change.Response.Model.SuccessChangeProtectedField:
+  type: object
+  required:
+    - message
+  properties:
+    message:
+      type: string
+      example: "Ваш новый логин/пароль/пин/емаил/телефон был сохранён"

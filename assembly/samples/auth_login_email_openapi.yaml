@@ -1,0 +1,816 @@
+openapi: 3.0.3
+info:
+  title: User Authentication Service API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Dev Server
+tags:
+  - name: Auth
+    description: User Authentication
+  - name: Auth.Change
+    description: Change Fields
+  - name: Auth.Operations
+    description: Confirmation Operations
+  - name: Auth.Check
+    description: Check Fields
+
+paths:
+  /v1/signup:
+    post:
+      summary: Auth/R1. Метод создания аккаунта пользователя
+      description: Метод предназначен для создания в БД нового аккаунта с уникальным логином пользователя
+      operationId: createAccount
+      tags:
+        - Auth
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/App.Request.Header.platform"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Request.Model.CreateAccount"
+
+      responses:
+        "202": # На емаил было отправлено сообщение с кодом подтверждения создания аккаунта
+          $ref: "#/components/responses/Auth.Response.WaitingAccessAccount"
+        "400": # Логин/емаил должен быть указан
+          # Логин/емаил некорректен или уже привязан к другому аккаунту
+          $ref: "#/components/responses/App.Response.Error400"
+        "403":
+          $ref: "#/components/responses/App.Response.Error403"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/signin:
+    post:
+      summary: Auth/R2. Метод получения доступа к аккаунту пользователя
+      description: Метод предназначен для аутентификации пользователя под указанным логином соответствующим аккаунту в БД
+      operationId: authAccount
+      tags:
+        - Auth
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/App.Request.Header.platform"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Request.Model.AuthAccount"
+
+      responses:
+        "202": # На емаил было отправлено сообщение с кодом подтверждения входа в свой аккаунт
+          $ref: "#/components/responses/Auth.Response.WaitingAccessAccount"
+        "400": # Логин/емаил должен быть указан
+          # Логин/емаил некорректен или не существует
+          $ref: "#/components/responses/App.Response.Error400"
+        "403":
+          $ref: "#/components/responses/App.Response.Error403"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth:
+    get:
+      summary: Auth/R3. Метод получения информации об аккаунте
+      description: Метод предназначен для получения информации из БД об аккаунте текущего пользователя
+      operationId: getAccount
+      tags:
+        - Auth
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      responses:
+        "200":
+          description: Сформирован ответ с информацией об аккаунте текущего пользователя
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/Auth.Response.Model.Account"
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+    post:
+      summary: Auth/R4. Метод генерации новых access и refresh токенов
+      description: Метод предназначен для генерации новых access и refresh токенов по указанному refresh токену
+      operationId: generateAccessTokens
+      tags:
+        - Auth
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/App.Request.Header.platform"
+        - $ref: "#/components/parameters/Auth.Request.Query.Mobile.refreshToken"
+        - $ref: "#/components/parameters/Auth.Request.Cookie.Web.refreshToken"
+
+      responses:
+        "201": # Refresh и Access токены перегенерированы
+          $ref: "#/components/responses/Auth.Response.SuccessAccessAccount"
+        "400": # Refresh токен должен быть указан
+          # Refresh токен некорректен или недействителен
+          $ref: "#/components/responses/App.Response.Error400"
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/{operationToken}:
+    post:
+      summary: Auth/R5. Метод генерации access и refresh токенов по токену операции
+      description: Метод предназначен для генерации access и refresh токенов по указанному токену операции
+      operationId: generateAccessTokensByToken
+      tags:
+        - Auth
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/App.Request.Header.platform"
+        - $ref: "#/components/parameters/Auth.Operations.Request.Path.operationToken"
+
+      responses:
+        "201": # Refresh и Access токены сгенерированы на основе токена операции
+          $ref: "#/components/responses/Auth.Response.SuccessAccessAccount"
+        "400": # Токен операции должен быть указан
+          # Токен операции некорректен или недействителен
+          $ref: "#/components/responses/App.Response.Error400"
+        "403":
+          $ref: "#/components/responses/App.Response.Error403"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/login:
+    patch:
+      summary: Auth/CH/R1. Метод изменения логина пользователя
+      description: Метод предназначен для изменения логина пользователя привязанного к его аккаунту
+      operationId: changeLogin
+      tags:
+        - Auth.Change
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Change.Request.Model.ChangeLogin"
+
+      responses:
+        "202":
+          $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+        "400": # Новый логин должен быть указан
+          # Новый логин некорректен
+          # Новый логин уже привязан к другому аккаунту
+          $ref: "#/components/responses/App.Response.Error400"
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/email:
+    patch:
+      summary: Auth/CH/R4. Метод изменения емаила пользователя
+      description: Метод предназначен для изменения емаила пользователя привязанного к его аккаунту
+      operationId: changeEmail
+      tags:
+        - Auth.Change
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Change.Request.Model.ChangeEmail"
+
+      responses:
+        "202":
+          $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+        "400": # Новый емаил должен быть указан
+          # Новый емаил некорректен или уже привязан к другому аккаунту
+          $ref: "#/components/responses/App.Response.Error400"
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/operation/{operationToken}:
+    get:
+      summary: Auth/OP/R1. Метод получения информации об операции
+      description: Метод предназначен для получения информации из БД об указанной операции
+      operationId: getOperation
+      tags:
+        - Auth.Operations
+
+      security:
+        - {}
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/Auth.Operations.Request.Path.operationToken"
+
+      responses:
+        "200":
+          description: Сформирован ответ с информацией об указанной операции
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/Auth.Operations.Response.Model.OperationStatus"
+        "403":
+          $ref: "#/components/responses/App.Response.Error403"
+        "404":
+          $ref: "#/components/responses/App.Response.Error404"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+    put:
+      summary: Auth/OP/R2. Метод подтверждения операции
+      description: Метод предназначен для подтвержения в БД указанной операции
+      operationId: confirmOperation
+      tags:
+        - Auth.Operations
+
+      security:
+        - {}
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/Auth.Operations.Request.Path.operationToken"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Operations.Request.Model.ConfirmOperation"
+
+      responses:
+        "204":
+          description: Указанная операция была подтверждена
+        "400": # Токен операции должен быть указан
+          # Токен операции некорректен или недействителен
+          # Код подтверждения операции должен быть указан
+          # Код подтверждения операции некорректен
+          # Исчерпано кол-во попыток подтверждения операции
+          $ref: "#/components/responses/App.Response.Error400"
+        "403":
+          $ref: "#/components/responses/App.Response.Error403"
+        "404":
+          $ref: "#/components/responses/App.Response.Error404"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+    delete:
+      summary: Auth/OP/R3. Метод отмены операции
+      description: Метод предназначен для отмены в БД указанной операции, если это возможно
+      operationId: cancelOperation
+      tags:
+        - Auth.Operations
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/Auth.Operations.Request.Path.operationToken"
+
+      responses:
+        "204":
+          description: Указанная операция была отменена
+        "403":
+          $ref: "#/components/responses/App.Response.Error403"
+        "404":
+          $ref: "#/components/responses/App.Response.Error404"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/login-check:
+    post:
+      summary: Auth/CK/R1. Метод проверяет не занят ли уже логин
+      description: Метод предназначен для проверки того, что указанный логин ещё не привязан к какому-либо аккаунту
+      operationId: checkLogin
+      tags:
+        - Auth.Check
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Check.Request.Model.CheckLogin"
+
+      responses:
+        "204":
+          description: Указанный логин свободен
+        "400": # Логин должен быть указан
+          # Логин некорректен или уже привязан к другому аккаунту
+          $ref: "#/components/responses/App.Response.Error400"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/email-check:
+    post:
+      summary: Auth/CK/R3. Метод проверяет не занят ли уже емаил
+      description: Метод предназначен для проверки того, что указанный емаил ещё не привязан к какому-либо аккаунту
+      operationId: checkEmail
+      tags:
+        - Auth.Check
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Check.Request.Model.CheckEmailLogin"
+
+      responses:
+        "204":
+          description: Указанный емаил свободен
+        "400": # Емаил должен быть указан
+          # Емаил некорректен или уже привязан к другому аккаунту
+          $ref: "#/components/responses/App.Response.Error400"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+components:
+
+  headers:
+    Auth.Response.Cookie.Web.refreshToken:
+      schema:
+        description: Используется платформой WEB
+        type: string
+        example: RTID=02fb5463db25b91568a1801dc0974b1d50cb1f3bc817f2be3a4b357929cee704; Path=/; HttpOnly
+
+  parameters:
+    App.Request.Header.acceptLanguage:
+      description: https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Accept-Language
+      name: Accept-Language
+      in: header
+      schema:
+        type: string
+      example: "ru;q=0.9, fr-CH, fr;q=0.8, en;q=0.7, *;q=0.5"
+
+    App.Request.Header.correlationId:
+      name: CorrelationID
+      in: header
+      schema:
+        type: string
+        format: uuid
+        minLength: 36
+        maxLength: 36
+      example: "f7479171-83d2-4f64-84ac-892f8c0aaf48"
+
+    App.Request.Header.platform:
+      name: Platform
+      in: header
+      schema:
+        description: Платформа, которая использует данное API. По умолчанию WEB
+        type: string
+        enum:
+          - MOBILE
+          - WEB
+      example: WEB
+
+    Auth.Request.Query.Mobile.refreshToken:
+      name: refreshToken
+      in: query
+      schema:
+        description: Используется платформой MOBILE
+        type: string
+        minLength: 64
+        maxLength: 64
+      example: "02fb5463db25b91568a1801dc0974b1d50cb1f3bc817f2be3a4b357929cee704"
+
+    Auth.Request.Cookie.Web.refreshToken:
+      name: RTID
+      in: cookie
+      schema:
+        description: Используется платформой WEB
+        type: string
+        minLength: 64
+        maxLength: 64
+      example: "02fb5463db25b91568a1801dc0974b1d50cb1f3bc817f2be3a4b357929cee704"
+
+    Auth.Operations.Request.Path.operationToken:
+      name: operationToken
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 64
+        maxLength: 64
+      example: "b1d50cb1f3bc817f2be3a4b357929cee70402fb5463db25b91568a1801dc0974"
+
+  schemas:
+    App.Response.Model.Error: # RFC 7807 (Problem Details for HTTP APIs)
+      type: object
+      required:
+        - title
+        - detail
+        - request
+        - time
+        - errorTraceId
+      properties:
+        title:
+          description: Краткое описание проблемы, понятное человеку
+          type: string
+          example: "Entity not found"
+        detail:
+          description: Описание конкретно возникшей ошибки, понятное человеку
+          type: string
+          example: "Entity [User] with id = [123456] not found. You MUST use PUT to add entity instead of GET"
+        request:
+          description: Метод и URL запроса
+          type: string
+          example: "PUT /users/123456"
+        time:
+          description: Время возникновения ошибки с точностью до миллисекунд
+          type: string
+          format: date-time
+          example: "2023-01-01T12:00:00.000+02:00"
+        errorTraceId:
+          description: Идентификатор конкретного возникновения ошибки
+          type: string
+          format: uuid
+          example: "0b10c562-1ab2-4a70-94aa-1cced61f8af3"
+
+    App.Response.Model.ErrorAttribute:
+      type: object
+      required:
+        - id
+        - value
+      properties:
+        id:
+          description: Название атрибута, где произошла ошибка
+          type: string
+          example: "attributeName"
+        value:
+          description: Описание ошибки
+          type: string
+          example: "Атрибут не может быть пустым. Указано недопустимое значение атрибута"
+
+    Auth.Response.Model.Account:
+      type: object
+      required:
+        - accountId
+        - userLogin
+        - userEmail
+      properties:
+        accountId:
+          description: ID аккаунта пользователя
+          type: string
+          example: "2711650"
+        userLogin:
+          description: Логин пользователя
+          type: string
+          example: "user-login"
+        loginStatus:
+          $ref: "#/components/schemas/Auth.Response.Model.FieldUpdateStatus"
+        userEmail:
+          description: Емаил пользователя
+          type: string
+          example: "user-email@localhost"
+        emailStatus:
+          $ref: "#/components/schemas/Auth.Response.Model.FieldUpdateStatus"
+
+    Auth.Response.Model.FieldUpdateStatus:
+      type: object
+      required:
+        - newValue
+        - status
+      properties:
+        operationToken: # required if status = CONFIRMING
+          description: Токен операции, которую необходимо подтвердить для обновления поля новым значением
+          type: string
+          example: "b1d50cb1f3bc817f2be3a4b357929cee70402fb5463db25b91568a1801dc0974"
+        willUpdated: # required if status = UPDATING
+          description: Время, через которое будет обновлён логин/емаил (в сек.)
+          type: number
+          example: 81392
+        newValue:
+          description: Новый логин/емаил пользователя
+          type: string
+          example: "new-user-login | new-user-email@localhost | +7 999 888 77 77"
+        status:
+          description: Статус подтверждения
+          type: string
+          enum:
+            - CONFIRMING
+            - UPDATING
+          example: "UPDATING"
+
+    Auth.Request.Model.CreateAccount:
+      type: object
+      required:
+        - userEmail
+      properties:
+        userEmail:
+          description: Емаил пользователя являющийся одновременно и логином, к которому будет привязан созданный аккаунт
+          type: string
+          format: email
+          minLength: 7
+          maxLength: 128
+          example: "user-email@localhost"
+
+    Auth.Request.Model.AuthAccount:
+      type: object
+      required:
+        - userLogin
+      properties:
+        userLogin:
+          description: Логин/емаил привязаный к аккаунту пользователя
+          type: string
+          maxLength: 128
+          example: "user-login"
+
+    Auth.Response.Model.WaitingAccessAccount:
+      type: object
+      required:
+        - operationToken
+        - message
+      properties:
+        operationToken:
+          description: Токен операции, которую необходимо подтвердить для получения доступа к аккаунту
+          type: string
+          example: "b1d50cb1f3bc817f2be3a4b357929cee70402fb5463db25b91568a1801dc0974"
+        accountId:
+          description: ID аккаунта пользователя
+          type: string
+          example: "2711650"
+        message:
+          type: string
+          example: "Ваш аккаунт 2711650 успешно зарегистрирован, необходимо его активировать вводом кода подтверждения, отправленный на емаил, указанный при регистрации | На ваш емаил был выслан код для подверждения доступа к аккаунту"
+
+    Auth.Response.Model.AbstractSuccessAccessAccount:
+      type: object
+      required:
+        - accessToken
+        - message
+      properties:
+        accessToken:
+          type: string
+          example: "425b91568a1801dc02fb5463db17f2be3a4b357929cee700974b1d50cb1f3bc8"
+        accountId:
+          description: ID аккаунта пользователя
+          type: string
+          example: "2711650"
+        message:
+          type: string
+          example: "Ваш аккаунт 2711650 успешно зарегистрирован | Доступ к вашему аккаунту 2711650 разрешён"
+
+    Auth.Response.Model.Mobile.SuccessAccessAccount:
+      allOf:
+        - type: object
+          required:
+            - refreshToken
+          properties:
+            refreshToken:
+              type: string
+              example: "02fb5463db25b91568a1801dc0974b1d50cb1f3bc817f2be3a4b357929cee704"
+        - $ref: "#/components/schemas/Auth.Response.Model.AbstractSuccessAccessAccount"
+
+    Auth.Response.Model.Web.SuccessAccessAccount:
+      allOf:
+        - $ref: "#/components/schemas/Auth.Response.Model.AbstractSuccessAccessAccount"
+
+    Auth.Response.Model.SuccessAccessAccount:
+      oneOf:
+        - $ref: "#/components/schemas/Auth.Response.Model.Mobile.SuccessAccessAccount"
+        - $ref: "#/components/schemas/Auth.Response.Model.Web.SuccessAccessAccount"
+
+    Auth.Change.Request.Model.ChangeLogin:
+      type: object
+      required:
+        - newLogin
+        - currentPassword
+      properties:
+        newLogin:
+          description: Новый логин пользователя
+          type: string
+          format: login
+          maxLength: 32
+          example: "new-user-login"
+        currentPassword:
+          description: Текущий пароль пользователя
+          type: string
+          maxLength: 32
+          example: "DfK0p8Kjp19SkHEd"
+
+    Auth.Change.Request.Model.ChangeEmail:
+      type: object
+      required:
+        - newEmail
+      properties:
+        newEmail:
+          description: Новый емаил пользователя
+          type: string
+          format: email
+          minLength: 7
+          maxLength: 128
+          example: "new-user-email@localhost"
+
+    Auth.Change.Response.Model.WaitingChangeProtectedField:
+      type: object
+      required:
+        - operationToken
+        - message
+      properties:
+        operationToken:
+          description: Токен операции, которую необходимо подтвердить для изменения защищённого поля аккаунта
+          type: string
+          example: "b1d50cb1f3bc817f2be3a4b357929cee70402fb5463db25b91568a1801dc0974"
+        message:
+          type: string
+          example: "На новый емаил был выслан код для подтверждения его принадлежности вам | На текущий емаил был выслан код для подтверждения изменения логина/емаила"
+
+    Auth.Change.Response.Model.SuccessChangeProtectedField:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: "Ваш новый логин/емаил был сохранён"
+
+    Auth.Operations.Request.Model.ConfirmOperation:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: Код подтверждения операции по емаилу
+          type: string
+          maxLength: 8
+          example: "183947"
+
+    Auth.Operations.Response.Model.OperationStatus:
+      type: object
+      required:
+        - maxCheckCode
+        - sessionExpiry
+        - countTryCode
+      properties:
+        maxCheckCode:
+          description: Максимальное количество попыток ввода кода, для подтверждения операции
+          type: integer
+          example: 5
+        sessionExpiry:
+          description: Оставшееся время жизни сессии подтверждения операции в секундах
+          type: integer
+          example: 1032
+        countTryCode:
+          description: Оставшееся количество попыток ввода одного кода для подтверждения операции
+          type: integer
+          example: 2
+
+    Auth.Check.Request.Model.CheckLogin:
+      type: object
+      required:
+        - userLogin
+      properties:
+        userLogin:
+          description: Логин привязаный к аккаунту пользователя
+          type: string
+          format: login
+          minLength: 5
+          maxLength: 32
+          example: "user-login"
+
+    Auth.Check.Request.Model.CheckEmailLogin:
+      type: object
+      required:
+        - userEmail
+      properties:
+        userEmail:
+          description: Емаил привязаный к аккаунту пользователя
+          type: string
+          format: email
+          minLength: 7
+          maxLength: 128
+          example: "user-email@localhost"
+
+  responses:
+    App.Response.Error400:
+      description: Некорректные входные данные. Возвращается список атрибутов с ошибками
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/App.Response.Model.ErrorAttribute"
+
+    App.Response.Error401:
+      description: Пользователь не был аутентифицирован
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error403:
+      description: Пользователю с текущими правами доступ отклонён
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error404:
+      description: Запрашиваемый ресурс не был найден
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error5XX:
+      description: Внутренняя ошибка сервера
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    Auth.Response.WaitingAccessAccount:
+      description: |
+        - Ожидается активация созданного аккаунта пользователя
+        - Ожидается подтверждение входа пользователя в свой аккаунт
+        - Ожидается подтверждение восстановления доступа пользователя к своему аккаунту
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Response.Model.WaitingAccessAccount"
+
+    Auth.Response.SuccessAccessAccount:
+      description: |
+        - Аккаунт пользователя успешно создан
+        - Доступ к аккаунту пользователя разрешён
+        - Refresh и Access токены перегенерированы
+        - Refresh и Access токены сгенерированы на основе токена операции
+      headers:
+        Set-Cookie:
+          $ref: "#/components/headers/Auth.Response.Cookie.Web.refreshToken"
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Response.Model.SuccessAccessAccount"
+
+    Auth.Change.Response.WaitingChangeProtectedField:
+      description: Ожидается подтверждение изменения значения защищённого поля
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Change.Response.Model.WaitingChangeProtectedField"
+
+    Auth.Change.Response.SuccessChangeProtectedField:
+      description: Значение защищённого поля успешно изменено
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Change.Response.Model.SuccessChangeProtectedField"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

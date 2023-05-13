@@ -1,0 +1,41 @@
+# Создание аккаунта пользователя с подтверждением по емаил
+
+```plantuml
+@startuml
+!theme mars
+
+skinparam {
+    MaxMessageSize 250
+}
+
+skinparam sequence {
+    ParticipantPadding 125
+    MessageAlign center
+}
+
+participant "EmailClient" as eml order 10
+participant "User" as usr order 20
+participant "WebApp" as app order 30
+participant "Auth" as auth order 40
+participant "MailSender" as ms order 50
+
+usr -> app: Заполнение формы регистрации, нажатие кнопки "Зарегистрироваться"
+app -> auth: [Auth/R1] Запрос на создание аккаунта пользователя
+auth -> auth: Первичная обработка запроса
+app <-- auth: [Auth/R1] Success 202 + OperationToken
+
+app -> app: Отображение формы с полем для ввода кода подтверждения
+
+auth -> auth: Генерация кода подтверждения
+auth --> ms: Отправка события о необходимости отправки кода подтверждения
+auth -> auth: Постановка запроса в очередь в ожидании подтверждения от пользователя
+ms --> eml: Отправляется письмо с кодом подтверждения
+usr <-- eml: Получение на почте письма с кодом подтверждения
+
+usr -> app: Вводит полученный код подтверждения
+app -> auth: [Auth/OP/R2] Запрос на подтверждение емаила + OperationToken
+auth -> auth: Активация пользователя
+app <-- auth: [Auth/OP/R2] Success 204
+
+@enduml
+```

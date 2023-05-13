@@ -1,0 +1,438 @@
+---
+openapi: 3.0.3
+info:
+  title: Auth Template REST API
+  version: 0.1.0
+  description: REST API для Auth Template в формате OpenAPI v3.
+servers:
+  - url: http://localhost:8080
+    description: Dev Server
+tags:
+  - name: Auth.Change
+    description: Change Fields
+
+paths:
+  /v1/auth/login:
+    patch:
+      summary: Auth/CH/R1. Метод изменения логина пользователя
+      description: Метод предназначен для изменения логина пользователя привязанного к его аккаунту
+      operationId: changeLogin
+      tags:
+        - Auth.Change
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Change.Request.Model.ChangeLogin"
+
+      responses:
+        "200": # Новый логин пользователя был установлен
+          $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
+        "202":
+          $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+        "400": # Новый логин должен быть указан
+               # Новый логин некорректен
+               # Новый логин уже привязан к другому аккаунту
+               # Текущий пароль должен быть указан
+               # Текущий пароль указан неверно
+          $ref: "#/components/responses/App.Response.Error400"
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/password:
+    patch:
+      summary: Auth/CH/R2. Метод изменения пароля пользователя
+      description: Метод предназначен для изменения в БД пароля пользователя
+      operationId: changePassword
+      tags:
+        - Auth.Change
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Change.Request.Model.ChangePassword"
+
+      responses:
+        "200": # Новый пароль пользователя был установлен
+          $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
+        "202":
+          $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+        "400": # Текущий пароль должен быть указан
+               # Текущий пароль указан неверно
+               # Новый пароль должен быть указан
+               # Новый пароль содержит недопустимые символы
+               # Новый пароль слишком простой или короткий
+          $ref: "#/components/responses/App.Response.Error400"
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/pin:
+    patch:
+      summary: Auth/CH/R3. Метод изменения PIN-кода пользователя
+      description: Метод предназначен для изменения в БД PIN-кода пользователя
+      operationId: changePin
+      tags:
+        - Auth.Change
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Change.Request.Model.ChangePin"
+
+      responses:
+        "200": # Новый PIN-код пользователя был установлен
+               # PIN-код пользователя был отключён (только при отправке "0000")
+          $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
+        "202":
+          $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+        "400": # Текущий PIN-код должен быть указан
+               # Текущий PIN-код указан неверно
+               # Новый PIN-код должен быть указан
+               # Длина нового PIN-кода должна быть размером в N символов
+               # Новый PIN-код должен содержать только цифры
+          $ref: "#/components/responses/App.Response.Error400"
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/email:
+    patch:
+      summary: Auth/CH/R4. Метод изменения емаила пользователя
+      description: Метод предназначен для изменения емаила пользователя привязанного к его аккаунту
+      operationId: changeEmail
+      tags:
+        - Auth.Change
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Change.Request.Model.ChangeEmail"
+
+      responses:
+        "200": # Новый емаил пользователя был установлен
+          $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
+        "202":
+          $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+        "400": # Новый емаил должен быть указан
+               # Новый емаил некорректен или уже привязан к другому аккаунту
+          $ref: "#/components/responses/App.Response.Error400"
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/phone:
+    patch:
+      summary: Auth/CH/R5. Метод изменения телефона пользователя
+      description: Метод предназначен для изменения телефона пользователя привязанного к его аккаунту
+      operationId: changePhone
+      tags:
+        - Auth.Change
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      requestBody:
+        required: true
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Change.Request.Model.ChangePhone"
+
+      responses:
+        "200": # Новый телефон пользователя был установлен
+          $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
+        "202":
+          $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
+        "400": # Новый телефон должен быть указан
+               # Новый телефон некорректен или уже привязан к другому аккаунту
+          $ref: "#/components/responses/App.Response.Error400"
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+components:
+
+  parameters:
+    App.Request.Header.acceptLanguage:
+      description: https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Accept-Language
+      name: Accept-Language
+      in: header
+      schema:
+        type: string
+      example: "ru;q=0.9, fr-CH, fr;q=0.8, en;q=0.7, *;q=0.5"
+
+    App.Request.Header.correlationId:
+      name: CorrelationID
+      in: header
+      schema:
+        type: string
+        format: uuid
+        minLength: 36
+        maxLength: 36
+      example: "f7479171-83d2-4f64-84ac-892f8c0aaf48"
+
+    App.Request.Header.platform:
+      name: Platform
+      in: header
+      schema:
+        description: Платформа, которая использует данное API. По умолчанию WEB
+        type: string
+        enum:
+          - MOBILE
+          - WEB
+      example: WEB
+
+  schemas:
+    App.Response.Model.Error: # RFC 7807 (Problem Details for HTTP APIs)
+      type: object
+      required:
+        - title
+        - detail
+        - request
+        - time
+        - errorTraceId
+      properties:
+        title:
+          description: Краткое описание проблемы, понятное человеку
+          type: string
+          example: "Entity not found"
+        detail:
+          description: Описание конкретно возникшей ошибки, понятное человеку
+          type: string
+          example: "Entity [User] with id = [123456] not found. You MUST use PUT to add entity instead of GET"
+        request:
+          description: Метод и URL запроса
+          type: string
+          example: "PUT /users/123456"
+        time:
+          description: Время возникновения ошибки с точностью до миллисекунд
+          type: string
+          format: date-time
+          example: "2023-01-01T12:00:00.000+02:00"
+        errorTraceId:
+          description: Идентификатор конкретного возникновения ошибки
+          type: string
+          format: uuid
+          example: "0b10c562-1ab2-4a70-94aa-1cced61f8af3"
+
+    App.Response.Model.ErrorAttribute:
+      type: object
+      required:
+        - id
+        - value
+      properties:
+        id:
+          description: Название атрибута, где произошла ошибка
+          type: string
+          example: "attributeName"
+        value:
+          description: Описание ошибки
+          type: string
+          example: "Атрибут не может быть пустым. Указано недопустимое значение атрибута"
+
+    Auth.Change.Request.Model.ChangeLogin:
+      type: object
+      required:
+        - newLogin
+        - currentPassword
+      properties:
+        newLogin:
+          description: Новый логин пользователя
+          type: string
+          format: login
+          maxLength: 32
+          example: "new-user-login"
+        currentPassword:
+          description: Текущий пароль пользователя
+          type: string
+          maxLength: 32
+          example: "DfK0p8Kjp19SkHEd"
+
+    Auth.Change.Request.Model.ChangePassword:
+      type: object
+      required:
+        - newPassword
+      properties:
+        newPassword:
+          description: Новый пароль пользователя
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 32
+          example: "jp19SkHEdDfK0p8K"
+        currentPassword:
+          description: Текущий пароль пользователя
+          type: string
+          maxLength: 32
+          example: "DfK0p8Kjp19SkHEd"
+
+    Auth.Change.Request.Model.ChangePin:
+      type: object
+      required:
+        - newPin
+      properties:
+        newPin:
+          description: Новый PIN-код пользователя
+          type: string
+          minLength: 4
+          maxLength: 8
+          example: "3344"
+        currentPin:
+          description: Текущий PIN-код пользователя
+          type: string
+          maxLength: 8
+          example: "2233"
+
+    Auth.Change.Request.Model.ChangeEmail:
+      type: object
+      required:
+        - newEmail
+      properties:
+        newEmail:
+          description: Новый емаил пользователя
+          type: string
+          format: email
+          minLength: 7
+          maxLength: 128
+          example: "new-user-email@localhost"
+
+    Auth.Change.Request.Model.ChangePhone:
+      type: object
+      required:
+        - userPhone
+      properties:
+        userPhone:
+          description: Новый телефон пользователя
+          type: string
+          format: phone
+          minLength: 10
+          maxLength: 32
+          example: "+7 999 888 77 77"
+
+    Auth.Change.Response.Model.WaitingChangeProtectedField:
+      type: object
+      required:
+        - operationToken
+        - message
+      properties:
+        operationToken:
+          description: Токен операции, которую необходимо подтвердить для изменения защищённого поля аккаунта
+          type: string
+          example: "b1d50cb1f3bc817f2be3a4b357929cee70402fb5463db25b91568a1801dc0974"
+        message:
+          type: string
+          example: "На новый емаил/телефон был выслан код для подтверждения его принадлежности вам | На текущий емаил/телефон был выслан код для подтверждения изменения логина/емаила/телефона"
+
+    Auth.Change.Response.Model.SuccessChangeProtectedField:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          example: "Ваш новый логин/пароль/пин/емаил/телефон был сохранён"
+
+  responses:
+    App.Response.Error400:
+      description: Некорректные входные данные. Возвращается список атрибутов с ошибками
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/App.Response.Model.ErrorAttribute"
+
+    App.Response.Error401:
+      description: Пользователь не был аутентифицирован
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error403:
+      description: Пользователю с текущими правами доступ отклонён
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error404:
+      description: Запрашиваемый ресурс не был найден
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error5XX:
+      description: Внутренняя ошибка сервера
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    Auth.Change.Response.WaitingChangeProtectedField:
+      description: Ожидается подтверждение изменения значения защищённого поля
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Change.Response.Model.WaitingChangeProtectedField"
+
+    Auth.Change.Response.SuccessChangeProtectedField:
+      description: Значение защищённого поля успешно изменено
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Change.Response.Model.SuccessChangeProtectedField"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

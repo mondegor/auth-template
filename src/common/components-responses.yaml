@@ -1,0 +1,36 @@
+App.Response.Error400:
+  description: Некорректные входные данные. Возвращается список атрибутов с ошибками
+  content:
+    application/json;charset=UTF-8:
+      schema:
+        type: array
+        items:
+          $ref: "#/components/schemas/App.Response.Model.ErrorAttribute"
+
+App.Response.Error401:
+  description: Пользователь не был аутентифицирован
+  content:
+    application/problem+json:
+      schema:
+        $ref: "#/components/schemas/App.Response.Model.Error"
+
+App.Response.Error403:
+  description: Пользователю с текущими правами доступ отклонён
+  content:
+    application/problem+json:
+      schema:
+        $ref: "#/components/schemas/App.Response.Model.Error"
+
+App.Response.Error404:
+  description: Запрашиваемый ресурс не был найден
+  content:
+    application/problem+json:
+      schema:
+        $ref: "#/components/schemas/App.Response.Model.Error"
+
+App.Response.Error5XX:
+  description: Внутренняя ошибка сервера
+  content:
+    application/problem+json:
+      schema:
+        $ref: "#/components/schemas/App.Response.Model.Error"

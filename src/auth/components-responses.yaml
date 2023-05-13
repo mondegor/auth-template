@@ -1,0 +1,23 @@
+Auth.Response.WaitingAccessAccount:
+  description: |
+    - Ожидается активация созданного аккаунта пользователя
+    - Ожидается подтверждение входа пользователя в свой аккаунт
+    - Ожидается подтверждение восстановления доступа пользователя к своему аккаунту
+  content:
+    application/json;charset=UTF-8:
+      schema:
+        $ref: "#/components/schemas/Auth.Response.Model.WaitingAccessAccount"
+
+Auth.Response.SuccessAccessAccount:
+  description: |
+    - Аккаунт пользователя успешно создан
+    - Доступ к аккаунту пользователя разрешён
+    - Refresh и Access токены перегенерированы
+    - Refresh и Access токены сгенерированы на основе токена операции
+  headers:
+    Set-Cookie:
+      $ref: "#/components/headers/Auth.Response.Cookie.Web.refreshToken"
+  content:
+    application/json;charset=UTF-8:
+      schema:
+        $ref: "#/components/schemas/Auth.Response.Model.SuccessAccessAccount"

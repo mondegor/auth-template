@@ -1,0 +1,34 @@
+Auth.Sessions.Response.Model.Session:
+  type: object
+  required:
+    - sessionHash
+    - appName
+    - deviceName
+    - lastIP
+    - location
+    - isCurrentSession
+  properties:
+    sessionHash:
+      description: Первые N символов токена сессии
+      type: string
+      example: "1f3bc817fb1d50cb"
+    appName:
+      description: Название приложения, в котором открыта сессия
+      type: string
+      example: "Web, Firefox"
+    deviceName:
+      description: Название устройства, на котором открыта сессия
+      type: string
+      example: "Device 1"
+    lastIP:
+      description: IP адрес
+      type: string
+      example: "95.165.01.01"
+    location:
+      description: Местоположение на основе IP
+      type: string
+      example: "Moscow, Russia"
+    isCurrentSession:
+      description: Признак, что сессия является текущей
+      type: boolean
+      example: false

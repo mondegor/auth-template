@@ -1,0 +1,94 @@
+/v1/auth/operation/{operationToken}:
+  get:
+    summary: Auth/OP/R1. Метод получения информации об операции
+    description: Метод предназначен для получения информации из БД об указанной операции
+    operationId: getOperation
+    tags:
+      - Auth.Operations
+
+    security:
+      - {}
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+      - $ref: "#/components/parameters/Auth.Operations.Request.Path.operationToken"
+
+    responses:
+      "200":
+        description: Сформирован ответ с информацией об указанной операции
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Auth.Operations.Response.Model.OperationStatus"
+      "403":
+        $ref: "#/components/responses/App.Response.Error403"
+      "404":
+        $ref: "#/components/responses/App.Response.Error404"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+  put:
+    summary: Auth/OP/R2. Метод подтверждения операции
+    description: Метод предназначен для подтвержения в БД указанной операции
+    operationId: confirmOperation
+    tags:
+      - Auth.Operations
+
+    security:
+      - {}
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+      - $ref: "#/components/parameters/Auth.Operations.Request.Path.operationToken"
+
+    requestBody:
+      required: true
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            $ref: "#/components/schemas/Auth.Operations.Request.Model.ConfirmOperation"
+
+    responses:
+      "204":
+        description: Указанная операция была подтверждена
+      "400": # Токен операции должен быть указан
+             # Токен операции некорректен или недействителен
+             # Код подтверждения операции должен быть указан
+             # Код подтверждения операции некорректен
+             # Исчерпано кол-во попыток подтверждения операции
+        $ref: "#/components/responses/App.Response.Error400"
+      "403":
+        $ref: "#/components/responses/App.Response.Error403"
+      "404":
+        $ref: "#/components/responses/App.Response.Error404"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"
+
+  delete:
+    summary: Auth/OP/R3. Метод отмены операции
+    description: Метод предназначен для отмены в БД указанной операции, если это возможно
+    operationId: cancelOperation
+    tags:
+      - Auth.Operations
+
+    security:
+      - bearerAuth: []
+
+    parameters:
+      - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+      - $ref: "#/components/parameters/App.Request.Header.correlationId"
+      - $ref: "#/components/parameters/Auth.Operations.Request.Path.operationToken"
+
+    responses:
+      "204":
+        description: Указанная операция была отменена
+      "403":
+        $ref: "#/components/responses/App.Response.Error403"
+      "404":
+        $ref: "#/components/responses/App.Response.Error404"
+      "500":
+        $ref: "#/components/responses/App.Response.Error5XX"

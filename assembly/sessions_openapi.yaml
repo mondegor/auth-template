@@ -1,0 +1,257 @@
+---
+openapi: 3.0.3
+info:
+  title: Auth Template REST API
+  version: 0.1.0
+  description: REST API для Auth Template в формате OpenAPI v3.
+servers:
+  - url: http://localhost:8080
+    description: Dev Server
+tags:
+  - name: Auth.Sessions
+    description: User Sessions
+
+paths:
+  /v1/auth/sessions:
+    get:
+      summary: Auth/SS/R1. Метод получения списка сессий пользователя
+      description: Метод предназначен для получения из БД списка открытых сессий пользователя
+      operationId: getSessions
+      tags:
+        - Auth.Sessions
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      responses:
+        "200":
+          description: Сформирован ответ со списком открытых сессий пользователя
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Auth.Sessions.Response.Model.Session"
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+    delete:
+      summary: Auth/SS/R2. Метод уничтожения открытых сессий кроме текущей
+      description: Метод предназначен для уничтожения в БД всех открытых сессий пользователя кроме текущей
+      operationId: terminateSessions
+      tags:
+        - Auth.Sessions
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+
+      responses:
+        "204":
+          description: Все сессии пользователя были уничтожены кроме текущей
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+  /v1/auth/sessions/{sessionHash}:
+    delete:
+      summary: Auth/SS/R3. Метод уничтожения указанной сессий
+      description: Метод предназначен для уничтожения в БД указанной сессии пользователя
+      operationId: terminateSession
+      tags:
+        - Auth.Sessions
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: "#/components/parameters/App.Request.Header.acceptLanguage"
+        - $ref: "#/components/parameters/App.Request.Header.correlationId"
+        - $ref: "#/components/parameters/Auth.Sessions.Request.Path.sessionHash"
+
+      responses:
+        "204":
+          description: Указанная сессия пользователя была уничтожена
+        "401":
+          $ref: "#/components/responses/App.Response.Error401"
+        "404":
+          $ref: "#/components/responses/App.Response.Error404"
+        "500":
+          $ref: "#/components/responses/App.Response.Error5XX"
+
+components:
+
+  parameters:
+    App.Request.Header.acceptLanguage:
+      description: https://developer.mozilla.org/ru/docs/Web/HTTP/Headers/Accept-Language
+      name: Accept-Language
+      in: header
+      schema:
+        type: string
+      example: "ru;q=0.9, fr-CH, fr;q=0.8, en;q=0.7, *;q=0.5"
+
+    App.Request.Header.correlationId:
+      name: CorrelationID
+      in: header
+      schema:
+        type: string
+        format: uuid
+        minLength: 36
+        maxLength: 36
+      example: "f7479171-83d2-4f64-84ac-892f8c0aaf48"
+
+    App.Request.Header.platform:
+      name: Platform
+      in: header
+      schema:
+        description: Платформа, которая использует данное API. По умолчанию WEB
+        type: string
+        enum:
+          - MOBILE
+          - WEB
+      example: WEB
+
+    Auth.Sessions.Request.Path.sessionHash:
+      name: sessionHash
+      in: path
+      required: true
+      schema:
+        type: string
+      example: "1f3bc817fb1d50cb"
+
+  schemas:
+    App.Response.Model.Error: # RFC 7807 (Problem Details for HTTP APIs)
+      type: object
+      required:
+        - title
+        - detail
+        - request
+        - time
+        - errorTraceId
+      properties:
+        title:
+          description: Краткое описание проблемы, понятное человеку
+          type: string
+          example: "Entity not found"
+        detail:
+          description: Описание конкретно возникшей ошибки, понятное человеку
+          type: string
+          example: "Entity [User] with id = [123456] not found. You MUST use PUT to add entity instead of GET"
+        request:
+          description: Метод и URL запроса
+          type: string
+          example: "PUT /users/123456"
+        time:
+          description: Время возникновения ошибки с точностью до миллисекунд
+          type: string
+          format: date-time
+          example: "2023-01-01T12:00:00.000+02:00"
+        errorTraceId:
+          description: Идентификатор конкретного возникновения ошибки
+          type: string
+          format: uuid
+          example: "0b10c562-1ab2-4a70-94aa-1cced61f8af3"
+
+    App.Response.Model.ErrorAttribute:
+      type: object
+      required:
+        - id
+        - value
+      properties:
+        id:
+          description: Название атрибута, где произошла ошибка
+          type: string
+          example: "attributeName"
+        value:
+          description: Описание ошибки
+          type: string
+          example: "Атрибут не может быть пустым. Указано недопустимое значение атрибута"
+
+    Auth.Sessions.Response.Model.Session:
+      type: object
+      required:
+        - sessionHash
+        - appName
+        - deviceName
+        - lastIP
+        - location
+        - isCurrentSession
+      properties:
+        sessionHash:
+          description: Первые N символов токена сессии
+          type: string
+          example: "1f3bc817fb1d50cb"
+        appName:
+          description: Название приложения, в котором открыта сессия
+          type: string
+          example: "Web, Firefox"
+        deviceName:
+          description: Название устройства, на котором открыта сессия
+          type: string
+          example: "Device 1"
+        lastIP:
+          description: IP адрес
+          type: string
+          example: "95.165.01.01"
+        location:
+          description: Местоположение на основе IP
+          type: string
+          example: "Moscow, Russia"
+        isCurrentSession:
+          description: Признак, что сессия является текущей
+          type: boolean
+          example: false
+
+  responses:
+    App.Response.Error400:
+      description: Некорректные входные данные. Возвращается список атрибутов с ошибками
+      content:
+        application/json;charset=UTF-8:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/App.Response.Model.ErrorAttribute"
+
+    App.Response.Error401:
+      description: Пользователь не был аутентифицирован
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error403:
+      description: Пользователю с текущими правами доступ отклонён
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error404:
+      description: Запрашиваемый ресурс не был найден
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+    App.Response.Error5XX:
+      description: Внутренняя ошибка сервера
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/App.Response.Model.Error"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
