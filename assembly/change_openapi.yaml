@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: Auth Template REST API
-  version: 0.1.1
+  version: 0.0.1
   description: REST API для Auth Template в формате OpenAPI v3.
 servers:
   - url: http://localhost:8080
@@ -37,10 +37,11 @@ paths:
       responses:
         "200": # Новый логин пользователя был установлен
           $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
-        "202":
+        "202": # На емаил/телефон было отправлено сообщение с кодом подтверждения установки/изменения логина пользователя
           $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
         "400": # Новый логин должен быть указан
                # Новый логин некорректен
+               # Новый логин совпадает с текущим
                # Новый логин уже привязан к другому аккаунту
                # Текущий пароль должен быть указан
                # Текущий пароль указан неверно
@@ -75,7 +76,7 @@ paths:
       responses:
         "200": # Новый пароль пользователя был установлен
           $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
-        "202":
+        "202": # На емаил/телефон было отправлено сообщение с кодом подтверждения установки/изменения пароля пользователя
           $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
         "400": # Текущий пароль должен быть указан
                # Текущий пароль указан неверно
@@ -111,14 +112,12 @@ paths:
               $ref: "#/components/schemas/Auth.Change.Request.Model.ChangePin"
 
       responses:
-        "200": # Новый PIN-код пользователя был установлен
-               # PIN-код пользователя был отключён (только при отправке "0000")
-          $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
-        "202":
+        "202": # На емаил/телефон было отправлено сообщение с кодом подтверждения установки/изменения PIN-кода пользователя
           $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
         "400": # Текущий PIN-код должен быть указан
                # Текущий PIN-код указан неверно
                # Новый PIN-код должен быть указан
+               # Новый PIN-код совпадает с текущим
                # Длина нового PIN-кода должна быть размером в N символов
                # Новый PIN-код должен содержать только цифры
           $ref: "#/components/responses/App.Response.Error400"
@@ -152,9 +151,10 @@ paths:
       responses:
         "200": # Новый емаил пользователя был установлен
           $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
-        "202":
+        "202": # На новый емаил было отправлено сообщение с кодом подтверждения его принадлежности пользователю
           $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
         "400": # Новый емаил должен быть указан
+               # Новый емаил совпадает с текущим
                # Новый емаил некорректен или уже привязан к другому аккаунту
           $ref: "#/components/responses/App.Response.Error400"
         "401":
@@ -187,9 +187,10 @@ paths:
       responses:
         "200": # Новый телефон пользователя был установлен
           $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
-        "202":
+        "202": # На новый телефон было отправлено сообщение с кодом подтверждения его принадлежности пользователю
           $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
         "400": # Новый телефон должен быть указан
+               # Новый телефон совпадает с текущим
                # Новый телефон некорректен или уже привязан к другому аккаунту
           $ref: "#/components/responses/App.Response.Error400"
         "401":
@@ -237,7 +238,6 @@ components:
         - detail
         - request
         - time
-        - errorTraceId
       properties:
         title:
           description: Краткое описание проблемы, понятное человеку
@@ -324,11 +324,6 @@ components:
           minLength: 4
           maxLength: 8
           example: "3344"
-        currentPin:
-          description: Текущий PIN-код пользователя
-          type: string
-          maxLength: 8
-          example: "2233"
 
     Auth.Change.Request.Model.ChangeEmail:
       type: object

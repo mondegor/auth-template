@@ -1,0 +1,62 @@
+# Auth/SD-3. Подтверждение операции пользователем
+
+@startuml
+!theme mars
+
+skinparam {
+    MaxMessageSize 250
+}
+
+skinparam sequence {
+    ParticipantPadding 125
+    MessageAlign center
+}
+
+participant "EmailClient" as eml order 10
+participant "User" as usr order 20
+participant "WebApp" as app order 30
+participant "Auth" as auth order 40
+participant "MailSender" as ms order 50
+
+title Auth/SD-3. Подтверждение операции пользователем
+
+note across
+  Любой сценарий, который создаёт Operation
+end note
+
+auth -> auth: Генерация кода подтверждения и сохранение его в Operation
+auth --> ms: EVENT "Отправить код подтверждения пользователю"
+auth -> auth: Сохранение Operation в ожидании подтверждения от пользователя
+
+ms --> eml: Отправление письма с кодом подтверждения
+usr <-- eml: Получение на почте письма с кодом подтверждения
+
+app -> app: Отображение формы с полем для ввода кода подтверждения
+usr -> app: Указание кода подтверждения, нажатие кнопки "Отправить"
+
+app -> auth: [Auth/OP/R2] Запрос на подтверждение операции
+auth -> auth: Валидация данных
+
+alt #f0fff0 Валидация OK
+  auth -> auth: Изменение статуса Operation на CONFIRMED или UPDATING
+  app <-- auth: [Auth/OP/R2] Success 204
+
+  note across
+    Любой сценарий, который использует Operation
+  end note
+
+else #fff0f0 Валидация ERROR
+  app <-- auth: [Auth/OP/R2] Error 400, 403, 5XX
+
+  note left
+    - Токен операции должен быть указан
+    - Токен операции некорректен или недействителен
+    - Код подтверждения операции должен быть указан
+    - Код подтверждения операции некорректен
+    - Исчерпано кол-во попыток подтверждения операции
+  end note
+
+  app -> app: Отображение сообщения об ошибке
+end
+
+@enduml

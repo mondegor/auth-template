@@ -37,7 +37,7 @@
 /v1/signin:
   post:
     summary: Auth/R2. Метод получения доступа к аккаунту пользователя
-    description: Метод предназначен для аутентификации пользователя под указанным логином соответствующим аккаунту в БД
+    description: Метод предназначен для аутентификации пользователя под указанным логином/емаилом/телефоном соответствующим аккаунту в БД
     operationId: authAccount
     tags:
       - Auth
@@ -115,10 +115,8 @@
     responses:
       "201": # Refresh и Access токены перегенерированы
         $ref: "#/components/responses/Auth.Response.SuccessAccessAccount"
-      "400": # Refresh токен должен быть указан
+      "401": # Refresh токен должен быть указан
              # Refresh токен некорректен или недействителен
-        $ref: "#/components/responses/App.Response.Error400"
-      "401":
         $ref: "#/components/responses/App.Response.Error401"
       "500":
         $ref: "#/components/responses/App.Response.Error5XX"
@@ -140,10 +138,8 @@
     responses:
       "201": # Refresh и Access токены сгенерированы на основе токена операции
         $ref: "#/components/responses/Auth.Response.SuccessAccessAccount"
-      "400": # Токен операции должен быть указан
+      "403": # Токен операции должен быть указан
              # Токен операции некорректен или недействителен
-        $ref: "#/components/responses/App.Response.Error400"
-      "403":
         $ref: "#/components/responses/App.Response.Error403"
       "500":
         $ref: "#/components/responses/App.Response.Error5XX"

@@ -23,10 +23,11 @@
     responses:
       "200": # Новый логин пользователя был установлен
         $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
-      "202":
+      "202": # На емаил/телефон было отправлено сообщение с кодом подтверждения установки/изменения логина пользователя
         $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
       "400": # Новый логин должен быть указан
              # Новый логин некорректен
+             # Новый логин совпадает с текущим
              # Новый логин уже привязан к другому аккаунту
              # Текущий пароль должен быть указан
              # Текущий пароль указан неверно
@@ -38,7 +39,7 @@
 
 /v1/auth/password:
   patch:
-    summary: Метод изменения пароля пользователя
+    summary: Auth/CH/R2. Метод изменения пароля пользователя
     description: Метод предназначен для изменения в БД пароля пользователя
     operationId: changePassword
     tags:
@@ -61,7 +62,7 @@
     responses:
       "200": # Новый пароль пользователя был установлен
         $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
-      "202":
+      "202": # На емаил/телефон было отправлено сообщение с кодом подтверждения установки/изменения пароля пользователя
         $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
       "400": # Текущий пароль должен быть указан
              # Текущий пароль указан неверно
@@ -76,7 +77,7 @@
 
 /v1/auth/pin:
   patch:
-    summary: Метод изменения PIN-кода пользователя
+    summary: Auth/CH/R3. Метод изменения PIN-кода пользователя
     description: Метод предназначен для изменения в БД PIN-кода пользователя
     operationId: changePin
     tags:
@@ -97,14 +98,12 @@
             $ref: "#/components/schemas/Auth.Change.Request.Model.ChangePin"
 
     responses:
-      "200": # Новый PIN-код пользователя был установлен
-             # PIN-код пользователя был отключён (только при отправке "0000")
-        $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
-      "202":
+      "202": # На емаил/телефон было отправлено сообщение с кодом подтверждения установки/изменения PIN-кода пользователя
         $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
       "400": # Текущий PIN-код должен быть указан
              # Текущий PIN-код указан неверно
              # Новый PIN-код должен быть указан
+             # Новый PIN-код совпадает с текущим
              # Длина нового PIN-кода должна быть размером в N символов
              # Новый PIN-код должен содержать только цифры
         $ref: "#/components/responses/App.Response.Error400"
@@ -138,9 +137,10 @@
     responses:
       "200": # Новый емаил пользователя был установлен
         $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
-      "202":
+      "202": # На новый емаил было отправлено сообщение с кодом подтверждения его принадлежности пользователю
         $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
       "400": # Новый емаил должен быть указан
+             # Новый емаил совпадает с текущим
              # Новый емаил некорректен или уже привязан к другому аккаунту
         $ref: "#/components/responses/App.Response.Error400"
       "401":
@@ -173,9 +173,10 @@
     responses:
       "200": # Новый телефон пользователя был установлен
         $ref: "#/components/responses/Auth.Change.Response.SuccessChangeProtectedField"
-      "202":
+      "202": # На новый телефон было отправлено сообщение с кодом подтверждения его принадлежности пользователю
         $ref: "#/components/responses/Auth.Change.Response.WaitingChangeProtectedField"
       "400": # Новый телефон должен быть указан
+             # Новый телефон совпадает с текущим
              # Новый телефон некорректен или уже привязан к другому аккаунту
         $ref: "#/components/responses/App.Response.Error400"
       "401":

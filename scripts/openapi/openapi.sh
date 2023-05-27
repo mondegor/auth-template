@@ -6,12 +6,6 @@ function mrcmd_plugins_openapi_method_init() {
     "OPENAPI_SPEC_DIR"
     "OPENAPI_ASSEMBLY_DIR"
     "OPENAPI_SERVICE_FILE_POSTFIX"
-    "OPENAPI_SERVICE_FULL"
-    "OPENAPI_SERVICE_AUTH"
-    "OPENAPI_SERVICE_CHANGE"
-    "OPENAPI_SERVICE_OPERATIONS"
-    "OPENAPI_SERVICE_SESSIONS"
-    "OPENAPI_SERVICE_CHECK"
   )
 
   # default values of array: OPENAPI_VARS
@@ -19,12 +13,6 @@ function mrcmd_plugins_openapi_method_init() {
     "${APPX_DIR}/src"
     "${APPX_DIR}/assembly"
     "_openapi.yaml"
-    "full"
-    "auth"
-    "change"
-    "operations"
-    "sessions"
-    "check"
   )
 
   mrcore_dotenv_init_var_array OPENAPI_VARS[@] OPENAPI_VARS_DEFAULT[@]
@@ -58,37 +46,37 @@ function mrcmd_plugins_openapi_method_exec() {
 
     gen-full)
       local allServicesSrc="${OPENAPI_SPEC_DIR}"
-      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/${OPENAPI_SERVICE_FULL}${OPENAPI_SERVICE_FILE_POSTFIX}"
+      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/full${OPENAPI_SERVICE_FILE_POSTFIX}"
       mrcmd_plugins_call_function "openapi/gen-full" "${commonSrc}" "${allServicesSrc}" "${destFilePath}"
       ;;
 
     gen-auth)
-      local serviceSrc="${OPENAPI_SPEC_DIR}/${OPENAPI_SERVICE_AUTH}"
-      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/${OPENAPI_SERVICE_AUTH}${OPENAPI_SERVICE_FILE_POSTFIX}"
+      local serviceSrc="${OPENAPI_SPEC_DIR}/auth"
+      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/auth${OPENAPI_SERVICE_FILE_POSTFIX}"
       mrcmd_plugins_call_function "openapi/gen-auth" "${commonSrc}" "${serviceSrc}" "${destFilePath}"
       ;;
 
     gen-change)
-      local serviceSrc="${OPENAPI_SPEC_DIR}/${OPENAPI_SERVICE_CHANGE}"
-      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/${OPENAPI_SERVICE_CHANGE}${OPENAPI_SERVICE_FILE_POSTFIX}"
+      local serviceSrc="${OPENAPI_SPEC_DIR}/change"
+      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/change${OPENAPI_SERVICE_FILE_POSTFIX}"
       mrcmd_plugins_call_function "openapi/gen-change" "${commonSrc}" "${serviceSrc}" "${destFilePath}"
       ;;
 
     gen-operations)
-      local serviceSrc="${OPENAPI_SPEC_DIR}/${OPENAPI_SERVICE_OPERATIONS}"
-      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/${OPENAPI_SERVICE_OPERATIONS}${OPENAPI_SERVICE_FILE_POSTFIX}"
+      local serviceSrc="${OPENAPI_SPEC_DIR}/operations"
+      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/operations${OPENAPI_SERVICE_FILE_POSTFIX}"
       mrcmd_plugins_call_function "openapi/gen-operations" "${commonSrc}" "${serviceSrc}" "${destFilePath}"
       ;;
 
     gen-sessions)
-      local serviceSrc="${OPENAPI_SPEC_DIR}/${OPENAPI_SERVICE_SESSIONS}"
-      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/${OPENAPI_SERVICE_SESSIONS}${OPENAPI_SERVICE_FILE_POSTFIX}"
+      local serviceSrc="${OPENAPI_SPEC_DIR}/sessions"
+      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/sessions${OPENAPI_SERVICE_FILE_POSTFIX}"
       mrcmd_plugins_call_function "openapi/gen-sessions" "${commonSrc}" "${serviceSrc}" "${destFilePath}"
       ;;
 
     gen-check)
-      local serviceSrc="${OPENAPI_SPEC_DIR}/${OPENAPI_SERVICE_CHECK}"
-      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/${OPENAPI_SERVICE_CHECK}${OPENAPI_SERVICE_FILE_POSTFIX}"
+      local serviceSrc="${OPENAPI_SPEC_DIR}/check"
+      local destFilePath="${OPENAPI_ASSEMBLY_DIR}/check${OPENAPI_SERVICE_FILE_POSTFIX}"
       mrcmd_plugins_call_function "openapi/gen-check" "${commonSrc}" "${serviceSrc}" "${destFilePath}"
       ;;
 

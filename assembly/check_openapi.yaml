@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: Auth Template REST API
-  version: 0.1.1
+  version: 0.0.1
   description: REST API для Auth Template в формате OpenAPI v3.
 servers:
   - url: http://localhost:8080
@@ -33,7 +33,7 @@ paths:
 
       responses:
         "204":
-          description: Указанный логин свободен
+          description: Указанный логин не занят
         "400": # Логин должен быть указан
                # Логин некорректен или уже привязан к другому аккаунту
           $ref: "#/components/responses/App.Response.Error400"
@@ -90,7 +90,7 @@ paths:
 
       responses:
         "204":
-          description: Указанный емаил свободен
+          description: Указанный емаил не занят
         "400": # Емаил должен быть указан
           # Емаил некорректен или уже привязан к другому аккаунту
           $ref: "#/components/responses/App.Response.Error400"
@@ -165,7 +165,6 @@ components:
         - detail
         - request
         - time
-        - errorTraceId
       properties:
         title:
           description: Краткое описание проблемы, понятное человеку

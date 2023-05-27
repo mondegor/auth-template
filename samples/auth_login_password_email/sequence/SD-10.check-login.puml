@@ -1,0 +1,39 @@
+# Auth/SD-10. Проверка не занят ли указанный логин
+
+@startuml
+!theme mars
+
+skinparam {
+    MaxMessageSize 250
+}
+
+skinparam sequence {
+    ParticipantPadding 125
+    MessageAlign center
+}
+
+participant "User" as usr order 10
+participant "WebApp" as app order 20
+participant "Auth" as auth order 30
+
+title Auth/SD-10. Проверка не занят ли указанный логин
+
+usr -> app: Вводит очередной символ логина
+
+app -> auth: [Auth/CK/R1] Запрос на проверку логина
+auth -> auth: Валидация данных, поиск указанного логина
+
+alt #f0fff0 Валидация OK
+  app <-- auth: [Auth/CK/R1] Success 200
+else #fff0f0 Валидация ERROR
+  app <-- auth: [Auth/CK/R1] Error 400, 5XX
+
+  note left
+    - Логин должен быть указан
+    - Логин некорректен или уже привязан к другому аккаунту
+  end note
+
+  app -> app: Отображение сообщения об ошибке
+end
+
+@enduml

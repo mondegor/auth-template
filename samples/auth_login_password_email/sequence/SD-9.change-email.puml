@@ -1,0 +1,56 @@
+# Auth/SD-9. Изменение емаила пользователя
+
+@startuml
+!theme mars
+
+skinparam {
+    MaxMessageSize 250
+}
+
+skinparam sequence {
+    ParticipantPadding 125
+    MessageAlign center
+}
+
+participant "User" as usr order 10
+participant "WebApp" as app order 20
+participant "Auth" as auth order 30
+
+title Auth/SD-9. Изменение емаила пользователя
+
+usr -> app: Нажатие кнопки "Изменить емаил"
+app -> app: Отображение формы изменения емаила пользователя
+
+usr -> app: Заполнение поля с новым емаилом и нажатие кнопки "Сохранить"
+
+app -> auth: [Auth/CH/R4] Запрос на изменение емаила пользователя
+auth -> auth: Валидация данных
+
+alt #f0fff0 Валидация OK
+  auth -> auth: Создание Operation
+  app <-- auth: [Auth/CH/R4] Success 202
+
+  note across
+    Сценарий [Auth/SD-3] Подтверждение операции пользователем
+  end note
+
+  loop #fffff0 Если не активирован сценарий [Auth/SD-4]
+    alt #ffffff Прошло N дней после подтверждения запроса на изменение емаила
+      auth -> auth: замена старого емаила пользователя на новый
+      note over auth: выход из цикла
+    end
+  end
+
+else #fff0f0 Валидация ERROR
+  app <-- auth: [Auth/CH/R4] Error 400, 5XX
+
+  note left
+    - Новый емаил должен быть указан
+    - Новый емаил совпадает с текущим
+    - Новый емаил некорректен или уже привязан к другому аккаунту
+  end note
+
+  app -> app: Отображение сообщения об ошибке
+end
+
+@enduml

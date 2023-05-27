@@ -34,7 +34,7 @@ trim_trailing_whitespace = true
 indent_size = 2
 insert_final_newline = true
 
-[{*.css, *.less, *.json, *.yaml}]
+[{*.css, *.less, *.json, *.xml, *.xslt, *.yaml, *.puml}]
 indent_size = 2
 
 [*.go]

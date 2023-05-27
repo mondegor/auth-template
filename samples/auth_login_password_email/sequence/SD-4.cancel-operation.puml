@@ -1,0 +1,44 @@
+# Auth/SD-4. Отмена операции пользователем
+
+@startuml
+!theme mars
+
+skinparam {
+    MaxMessageSize 250
+}
+
+skinparam sequence {
+    ParticipantPadding 125
+    MessageAlign center
+}
+
+participant "User" as usr order 10
+participant "WebApp" as app order 20
+participant "Auth" as auth order 30
+
+title Auth/SD-4. Отмена операции пользователем
+
+app -> auth: [Auth/OP/R1] Запрос на список неподтверждённых операций пользователя
+app <-- auth: [Auth/OP/R1] Success 200
+
+usr -> app: Отмена указанной операции
+
+app -> auth: [Auth/OP/R3] Запрос на отмену указанной операции
+auth -> auth: Валидация данных
+
+alt #f0fff0 Валидация OK
+  auth -> auth: Изменение статуса Operation на CANCELED
+  app <-- auth: [Auth/OP/R3] Success 204
+
+else #fff0f0 Валидация ERROR
+  app <-- auth: [Auth/OP/R3] Error 400, 403, 5XX
+
+  note left
+    - Токен операции должен быть указан
+    - Токен операции некорректен или недействителен
+  end note
+
+  app -> app: Отображение сообщения об ошибке
+end
+
+@enduml

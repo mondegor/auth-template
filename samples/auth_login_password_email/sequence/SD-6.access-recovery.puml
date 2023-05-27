@@ -1,0 +1,48 @@
+# Auth/SD-6. Восстановление доступа к аккаунту пользователя
+
+@startuml
+!theme mars
+
+skinparam {
+    MaxMessageSize 250
+}
+
+skinparam sequence {
+    ParticipantPadding 125
+    MessageAlign center
+}
+
+participant "User" as usr order 10
+participant "WebApp" as app order 20
+participant "Auth" as auth order 30
+
+title Auth/SD-6. Восстановление доступа к аккаунту пользователя
+
+usr -> app: Нажатие кнопки "Забыли пароль"
+app -> app: Отображение формы восстановления доступа
+usr -> app: Заполнение поля логин/емаил от аккаунта пользователя, нажатие кнопки "Восстановить"
+
+app -> auth: [Auth/R6] Запрос на восстановление доступа к аккаунту
+auth -> auth: Валидация данных
+
+alt #f0fff0 Валидация OK
+  auth -> auth: Создание Operation
+  app <-- auth: [Auth/R6] Success 202
+
+  note across
+    Сценарий [Auth/SD-3] Подтверждение операции пользователем
+    Сценарий [Auth/SD-7] Установка нового пароля пользователя
+  end note
+
+else #fff0f0 Валидация ERROR
+  app <-- auth: [Auth/R6] Error 400, 5XX
+
+  note left
+    - Логин/емаил должен быть указан
+    - Логин/емаил некорректен или не существует
+  end note
+
+  app -> app: Отображение сообщения об ошибке
+end
+
+@enduml

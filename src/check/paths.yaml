@@ -19,7 +19,7 @@
 
     responses:
       "204":
-        description: Указанный логин свободен
+        description: Указанный логин не занят
       "400": # Логин должен быть указан
              # Логин некорректен или уже привязан к другому аккаунту
         $ref: "#/components/responses/App.Response.Error400"
@@ -76,7 +76,7 @@
 
     responses:
       "204":
-        description: Указанный емаил свободен
+        description: Указанный емаил не занят
       "400": # Емаил должен быть указан
         # Емаил некорректен или уже привязан к другому аккаунту
         $ref: "#/components/responses/App.Response.Error400"

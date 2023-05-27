@@ -5,7 +5,6 @@ App.Response.Model.Error: # RFC 7807 (Problem Details for HTTP APIs)
     - detail
     - request
     - time
-    - errorTraceId
   properties:
     title:
       description: Краткое описание проблемы, понятное человеку

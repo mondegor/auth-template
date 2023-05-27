@@ -1,6 +1,5 @@
-### Обновление access и refresh токенов (обработка кода 401)
+# Auth/SD-5 Обновление access и refresh токенов (обработка кода 401)
 
-```plantuml
 @startuml
 !theme mars
 
@@ -17,21 +16,28 @@ participant "WebApp" as app order 10
 participant "SX" as sx order 20
 participant "Auth" as auth order 30
 
+title Auth/SD-5 Обновление access и refresh токенов (обработка кода 401)
+
 app -> sx: [SX.Y] запрос к ресурсу сервиса
-app <-- sx: [SX.Y] Error 401
+app <-- sx: [SX.Y] Error 401, 5XX
 
 app -> auth: [Auth/R4] запрос на генерацию новых access и refresh токенов
 
 alt #f0fff0 Refresh токен указан верно
-  auth -> auth: генерация новых access и refresh токенов
+  auth -> auth: Генерация новых access и refresh токенов
   app <-- auth: [Auth/R4] Success 201
 
   app -> auth: [SX.Y] повторный запрос к ресурсу сервиса
   app <-- auth: [SX.Y] Success 200
 else #fff0f0 Refresh токен невалидный
-  app <-- auth: [Auth/R4] Error 403
+  app <-- auth: [Auth/R4] Error 401, 5XX
+
+  note left
+    - Refresh токен должен быть указан
+    - Refresh токен некорректен или недействителен
+  end note
+
   app -> app: отображение формы аутентификации
 end
 
 @enduml
-```

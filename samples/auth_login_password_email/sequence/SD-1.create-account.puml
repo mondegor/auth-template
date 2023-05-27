@@ -1,0 +1,76 @@
+# Auth/SD-1. Создание нового аккаунта пользователя
+
+@startuml
+!theme mars
+
+skinparam {
+    MaxMessageSize 250
+}
+
+skinparam sequence {
+    ParticipantPadding 125
+    MessageAlign center
+}
+
+participant "User" as usr order 10
+participant "WebApp" as app order 20
+participant "Auth" as auth order 30
+
+title Auth/SD-1. Создание нового аккаунта пользователя
+
+usr -> app: Нажатие кнопки "Регистрация"
+app -> app: Отображение формы регистрации аккаунта
+
+loop #f0fff0 Если не нажата кнопка "Зарегистрироваться"
+  usr -> app: Заполнение полей формы или нажатие кнопки "Зарегистрироваться"
+
+  note across
+    Сценарий [Auth/SD-10] Проверка не занят ли указанный логин
+    Сценарий [Auth/SD-11] Проверка пароля пользователя на его сложность
+  end note
+
+  app -> app: Если поля корректно заполнены, то активация кнопки "Зарегистрироваться"
+end
+
+app -> auth: [Auth/R1] Запрос на создание аккаунта пользователя
+auth -> auth: Валидация данных
+
+alt #ffffff Валидация OK
+  auth -> auth: Создание Operation
+  auth -> auth: Установка в Operation обработчика активации аккаунта
+  app <-- auth: [Auth/R1] Success 202
+
+  note across
+    Сценарий [Auth/SD-3] Подтверждение операции пользователем
+  end note
+
+  app -> auth: [Auth/R5] Запрос на получение access и refresh
+
+  alt #f0fff0 Валидация OK
+    auth -> auth: Активация аккаунта посредством вызова обработчика установленного в Operation
+    app <-- auth: [Auth/R5] Success 201
+    app -> app: Отображение главного экрана аккаунта
+  else #fff0f0 Валидация ERROR
+    app <-- auth: [Auth/R5] Error 403, 5XX
+
+    note left
+      - Токен операции должен быть указан
+      - Токен операции некорректен или недействителен
+    end note
+  end
+
+else #fff0f0 Валидация ERROR
+  app <-- auth: [Auth/R6] Error 400, 5XX
+
+  note left
+    - Логин должен быть указан
+    - Логин некорректен или уже привязан к другому аккаунту
+    - Пароль должен быть указан
+    - Пароль содержит недопустимые символы
+    - Пароль слишком простой или короткий
+  end note
+
+  app -> app: Отображение сообщения об ошибке
+end
+
+@enduml

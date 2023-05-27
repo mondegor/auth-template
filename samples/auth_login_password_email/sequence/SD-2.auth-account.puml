@@ -1,0 +1,44 @@
+# Auth/SD-2. Аутентификация пользователя через логин и пароль
+
+@startuml
+!theme mars
+
+skinparam {
+    MaxMessageSize 250
+}
+
+skinparam sequence {
+    ParticipantPadding 125
+    MessageAlign center
+}
+
+participant "User" as usr order 10
+participant "WebApp" as app order 20
+participant "Auth" as auth order 30
+
+title Auth/SD-2. Аутентификация пользователя через логин и пароль
+
+usr -> app: Нажатие кнопки "Аутентификация"
+app -> app: Отображение формы аутентификации пользователя
+usr -> app: Заполнение полей: логин, пароль; нажатие кнопки "Войти"
+
+app -> auth: [Auth/R2] Запрос на получение доступа к аккаунту пользователя
+auth -> auth: Валидация данных
+
+alt #f0fff0 Валидация OK
+  auth -> auth: Генерация access и refresh токенов
+  app <-- auth: [Auth/R2] Success 201
+  app -> app: Отображение главного экрана аккаунта
+else #fff0f0 Валидация ERROR
+  app <-- auth: [Auth/R2] Error 400, 5XX
+
+  note left
+    - Логин должен быть указан
+    - Логин некорректен или не существует
+    - Пара логин - пароль не существует
+  end note
+
+  app -> app: Отображение сообщения об ошибке
+end
+
+@enduml

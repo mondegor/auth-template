@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: Auth Template REST API
-  version: 0.1.1
+  version: 0.0.1
   description: REST API для Auth Template в формате OpenAPI v3.
 servers:
   - url: http://localhost:8080
@@ -68,17 +68,21 @@ paths:
 
       responses:
         "204":
-          description: Указанная операция была подтверждена
-        "400": # Токен операции должен быть указан
-               # Токен операции некорректен или недействителен
-               # Код подтверждения операции должен быть указан
+          description: |
+            Указанная операция была подтверждена
+            Новый логин пользователя был установлен
+            Новый пароль пользователя был установлен
+            Новый PIN-код пользователя был установлен
+            PIN-код пользователя был отключён (только при отправке "0000")
+            Новый емаил пользователя был установлен
+            Новый телефон пользователя был установлен
+        "400": # Код подтверждения операции должен быть указан
                # Код подтверждения операции некорректен
                # Исчерпано кол-во попыток подтверждения операции
           $ref: "#/components/responses/App.Response.Error400"
-        "403":
+        "403": # Токен операции должен быть указан
+               # Токен операции некорректен или недействителен
           $ref: "#/components/responses/App.Response.Error403"
-        "404":
-          $ref: "#/components/responses/App.Response.Error404"
         "500":
           $ref: "#/components/responses/App.Response.Error5XX"
 
@@ -157,7 +161,6 @@ components:
         - detail
         - request
         - time
-        - errorTraceId
       properties:
         title:
           description: Краткое описание проблемы, понятное человеку

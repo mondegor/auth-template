@@ -28,7 +28,7 @@ mrcmd_func_openapi_gen_auth() {
   echo -e "\n" >> "${destFilePath}"
   openapi_lib_add_string_to_end_file "${serviceSrc}/components-parameters.yaml" "${destFilePath}" 4
   echo -e "\n" >> "${destFilePath}"
-  openapi_lib_add_string_to_end_file "${OPENAPI_SPEC_DIR}/Operations/components-parameters-operationToken.yaml" "${destFilePath}" 4
+  openapi_lib_add_string_to_end_file "${OPENAPI_SPEC_DIR}/operations/components-parameters-operationToken.yaml" "${destFilePath}" 4
 
   echo -e "\n\n  schemas:" >> "${destFilePath}"
   openapi_lib_add_string_to_end_file "${commonSrc}/components-schemas.yaml" "${destFilePath}" 4
