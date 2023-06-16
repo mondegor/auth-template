@@ -1,6 +1,6 @@
 
 function mrcmd_plugins_openapi_method_init() {
-  readonly OPENAPI_NAME="User Authentication Service API"
+  readonly OPENAPI_CAPTION="User Authentication Service API"
 
   readonly OPENAPI_VARS=(
     "OPENAPI_SPEC_DIR"
@@ -36,12 +36,12 @@ function mrcmd_plugins_openapi_method_exec() {
   case ${currentCommand} in
 
     gen-all)
-      ./mrcmd openapi gen-full
-      ./mrcmd openapi gen-auth
-      ./mrcmd openapi gen-change
-      ./mrcmd openapi gen-operations
-      ./mrcmd openapi gen-sessions
-      ./mrcmd openapi gen-check
+      mrcmd openapi gen-full
+      mrcmd openapi gen-auth
+      mrcmd openapi gen-change
+      mrcmd openapi gen-operations
+      mrcmd openapi gen-sessions
+      mrcmd openapi gen-check
       ;;
 
     gen-full)
@@ -88,7 +88,7 @@ function mrcmd_plugins_openapi_method_exec() {
 }
 
 function mrcmd_plugins_openapi_method_help() {
-  #markup:"------------------------------|||||||||||||||||||||||||||||||||||||||||||||"
+  #markup:"--|-|---------|-------|-------|---------------------------------------|"
   echo -e "    gen-all                   Build all services"
   echo -e "    gen-full                  Build service Full"
   echo -e "    gen-auth                  Build service Auth"

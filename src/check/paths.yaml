@@ -87,7 +87,7 @@
   post:
     summary: Auth/CK/R4. Метод проверяет не занят ли уже телефон
     description: Метод предназначен для проверки того, что указанный телефон ещё не привязан к какому-либо аккаунту
-    operationId: checkLogin
+    operationId: checkPhone
     tags:
       - Auth.Check
 

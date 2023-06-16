@@ -1,6 +1,6 @@
 
 mrcmd_func_openapi_gen_change() {
-  mrcore_import "${MRCMD_CURRENT_PLUGINS_DIR}/${MRCMD_CURRENT_PLUGIN_NAME}/lib/gen-service.sh"
+  mrcore_import "${MRCMD_CURRENT_PLUGIN_DIR}/lib/gen-service.sh"
 
   local commonSrc="${1:?}"
   local serviceSrc="${2:?}"
